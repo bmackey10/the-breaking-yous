@@ -15,13 +15,33 @@ def get_top_stories(section):
     
     if response.status_code == 200:
         data = response.json()
-        return data
+        filtered_data = []
+        for article in data.get('results', []):
+            main_image_url = ''
+            multimedia = article.get('multimedia')
+            if multimedia:
+                for media in multimedia:
+                    if media.get('format') == 'Normal':
+                        main_image_url = media.get('url')
+                        break
+            filtered_article = {
+                'author': article.get('byline', ''),
+                'title': article.get('title', ''),
+                'section': article.get('section', ''),
+                'description': article.get('abstract', ''),
+                'imageLink': main_image_url,
+                'date': article.get('published_date', ''),
+                'url': article.get('url','')
+            }
+            filtered_data.append(filtered_article)
+        return filtered_data
     else:
         print(f"Failed to fetch data. Status code: {response.status_code}")
         return None
 
 # Example usage
 section = "science"  # Replace with the desired section
-data = get_top_stories(section)
-if data:
-    pprint.pprint(data)
+filtered_data = get_top_stories(section)
+if filtered_data:
+    pprint.pprint(filtered_data)
+
