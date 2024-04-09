@@ -9,11 +9,11 @@ regional, technology, lifestyle, business, general, programming, science, entert
 
 def get_top_stories(section):
        url = ('https://api.currentsapi.services/v1/latest-news?' +
-              'country=USA&' + 
-              'category={section}&' +  'apiKey=kbGQd9onukGz1j0GLj4Ya4F6vLRNJIZnNXuxi01DDqtVUBPR')
+              'category='+ section + '&' +  'apiKey=kbGQd9onukGz1j0GLj4Ya4F6vLRNJIZnNXuxi01DDqtVUBPR')
        response = requests.get(url)
        #pprint.pprint(response.json())    
-       c = datetime.now()
+       c = str(datetime.now())
+       print(c)
 
        if response.status_code == 200:
               data = response.json()
@@ -36,7 +36,7 @@ def get_top_stories(section):
               return None     
        
 
-section = "lifestyle"
+section = "business"
 filtered_data = get_top_stories(section)
 if filtered_data:
        pprint.pprint(filtered_data)

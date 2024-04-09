@@ -4,19 +4,26 @@ import json
 # https://docs.python.org/3/library/urllib.request.html#module-urllib.request
 # This library will be used to fetch the API.
 import urllib.request
+import pprint
+from datetime import datetime
 
 '''
 	This parameter allows you to change the category for the request. The available categories are : general, world, nation, business, technology, entertainment, sports, science and health.
 '''
 
+c = str(datetime.now())
+print(c)
+
 apikey = "1a423a884dedb79033115b4020ca8285"
-category = "world"
+category = "business"
 url = f"https://gnews.io/api/v4/top-headlines?category={category}&lang=en&country=us&max=10&apikey={apikey}"
 
 with urllib.request.urlopen(url) as response:
     data = json.loads(response.read().decode("utf-8"))
     articles = data["articles"]
+    pprint.pprint(articles)
 
+    '''
     for i in range(len(articles)):
         # articles[i].title
         print(f"Title: {articles[i]['title']}")
@@ -28,3 +35,24 @@ with urllib.request.urlopen(url) as response:
 
         # Delete this line to display all the articles returned by the request. Currently only the first article is displayed.
         #break
+    '''
+    
+    filtered_data = []
+    for article in articles:
+                     source = article.get('source')
+                     if source:
+                             author = source['name']
+
+                     filtered_article = {
+                            'author': author,
+                            'title': article.get('title', ''),
+                            'section': 'business',
+                            'description': article.get('description', ''),
+                            'imageLink': article.get('image', ''),
+                            'date': article.get('publishedAt', ''),
+                            'url': article.get('url',''),
+                            'scrapedTime': c
+                     }
+                     filtered_data.append(filtered_article)
+
+pprint.pprint(filtered_data)
