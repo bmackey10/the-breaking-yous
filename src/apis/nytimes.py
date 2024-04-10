@@ -1,5 +1,7 @@
 import requests
 import pprint
+from datetime import datetime
+
 
 '''
 Permitted Topics
@@ -10,9 +12,12 @@ def get_top_stories(section):
     api_key = "BVXzFstMoiUxvKjeZfq9u8AlibRMygGd"  
     url = f"https://api.nytimes.com/svc/topstories/v2/{section}.json"
     params = {'api-key': api_key}
-    
+
+
     response = requests.get(url, params=params)
     
+    c = str(datetime.now())
+
     if response.status_code == 200:
         data = response.json()
         filtered_data = []
@@ -31,7 +36,10 @@ def get_top_stories(section):
                 'description': article.get('abstract', ''),
                 'imageLink': main_image_url,
                 'date': article.get('published_date', ''),
-                'url': article.get('url','')
+                'url': article.get('url',''),
+                'scrapedTime': c,
+                'api': 'nytimes'
+
             }
             filtered_data.append(filtered_article)
         return filtered_data
@@ -40,8 +48,10 @@ def get_top_stories(section):
         return None
 
 # Example usage
+'''
 section = "science"  # Replace with the desired section
 filtered_data = get_top_stories(section)
 if filtered_data:
     pprint.pprint(filtered_data)
+'''
 

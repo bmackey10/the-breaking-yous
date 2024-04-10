@@ -13,7 +13,6 @@ def get_top_stories(section):
        response = requests.get(url)
        #pprint.pprint(response.json())    
        c = str(datetime.now())
-       print(c)
 
        if response.status_code == 200:
               data = response.json()
@@ -27,7 +26,8 @@ def get_top_stories(section):
                             'imageLink': article.get('image', ''),
                             'date': article.get('published_date', ''),
                             'url': article.get('url',''),
-                            'scrapedTime': c
+                            'scrapedTime': c,
+                            'api': 'currents'
                      }
                      filtered_data.append(filtered_article)
               return filtered_data
