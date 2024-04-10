@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Article from "../Modules/Article.js";
 
 const dummy_data = [
     [
@@ -85,36 +85,14 @@ export default function ForYou() {
                 <div className="mx-auto max-w-7xl py-6 px-6 sm:px-8 lg:px-10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-flow-row gap-10">
                         {dummy_data.map((data) => (
-                            <Link
-                                to={data[5]}
-                                target="_blank"
-                                className="border-0 shadow-xl rounded-lg transition ease-in-out delay-150 hover:scale-105 lg:hover:scale-110 duration-300"
-                            >
-                                <div className="p-5 text-theme-navy-blue">
-                                    <img
-                                        src={data[6]}
-                                        className="w-full rounded-lg"
-                                        alt="article"
-                                    />
-                                    <div className="pt-4">
-                                        <div className="flex flex-row flex-wrap text-sm font-merriweather items-center gap-2">
-                                            <div className="text-theme-dark-red">
-                                                {data[2]}
-                                            </div>
-                                            <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
-                                            <div className="font-light">
-                                                {data[3]}
-                                            </div>
-                                        </div>
-                                        <div className="py-1 font-bold text-xl font-merriweather">
-                                            {data[1]}
-                                        </div>
-                                        <div className="font-light text-sm font-merriweather">
-                                            {data[7]}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <Article
+                                url={data[5]}
+                                img={data[6]}
+                                auth={data[2]}
+                                date={data[3]}
+                                title={data[1]}
+                                desc={data[7]}
+                            />
                         ))}
                     </div>
                     <div className="flex justify-center p-10">

@@ -52,7 +52,7 @@ export default function Header() {
                         onClick={() => setMobileMenuOpen(true)}
                     >
                         <Bars3Icon
-                            className="h-6 w-6 stroke-white"
+                            className="h-8 w-8 stroke-white"
                             aria-hidden="true"
                         />
                     </button>
@@ -72,7 +72,7 @@ export default function Header() {
                             className="-m-1.5 p-1.5 text-white font-merriweather"
                         >
                             <img
-                                className="h-10 w-auto"
+                                className="h-8 w-auto"
                                 src={NewspaperIcon}
                                 alt="newspaper icon"
                             />
@@ -83,7 +83,7 @@ export default function Header() {
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             <XMarkIcon
-                                className="h-6 w-6 stroke-white"
+                                className="h-8 w-8 stroke-white"
                                 aria-hidden="true"
                             />
                         </button>
