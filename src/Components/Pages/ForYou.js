@@ -76,7 +76,7 @@ export default function ForYou() {
         <div>
             <header className="bg-white shadow">
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-theme-dark-red">
+                    <h1 className="text-3xl font-bold font-merriweather tracking-tight text-theme-dark-red">
                         For You
                     </h1>
                 </div>
@@ -96,7 +96,7 @@ export default function ForYou() {
                         ))}
                     </div>
                     <div className="flex justify-center p-10">
-                        <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white rounded-full px-4 py-2 font-semibold">
+                        <button className="border-2 font-merriweather transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white rounded-full px-4 py-2 font-semibold">
                             Load More Articles
                         </button>
                     </div>
