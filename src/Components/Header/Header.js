@@ -6,6 +6,7 @@ import NewspaperIcon from "../../Images/newspaper.png";
 
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const loggedIn = true;
 
     return (
         <header className="bg-theme-navy-blue">
@@ -31,24 +32,33 @@ export default function Header() {
                     <div className="flex lg:cols-span-1 justify-center">
                         <Link
                             to="/"
-                            className="text-2xl font-semibold font-merriweather leading-6 text-white"
+                            className="text-3xl font-semibold font-merriweather leading-6 text-white"
                         >
                             The Breaking Yous
                         </Link>
                     </div>
                     <div className="hidden lg:flex lg:cols-span-1 lg:justify-end">
-                        <Link
-                            to="/log-in"
-                            className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
-                        >
-                            Log in
-                        </Link>
+                        {loggedIn ? (
+                            <Link
+                                to="/profile/bmackey"
+                                className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
+                            >
+                                Profile
+                            </Link>
+                        ) : (
+                            <Link
+                                to="/log-in"
+                                className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
+                            >
+                                Log in
+                            </Link>
+                        )}
                     </div>
                 </div>
                 <div className="flex lg:hidden">
                     <button
                         type="button"
-                        className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                        className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5"
                         onClick={() => setMobileMenuOpen(true)}
                     >
                         <Bars3Icon
@@ -105,12 +115,21 @@ export default function Header() {
                                 </Link>
                             </div>
                             <div className="py-6">
-                                <Link
-                                    to="/log-in"
-                                    className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
-                                >
-                                    Log in
-                                </Link>
+                                {loggedIn ? (
+                                    <Link
+                                        to="/profile/bmackey"
+                                        className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
+                                    >
+                                        Profile
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/log-in"
+                                        className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
+                                    >
+                                        Log in
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>
