@@ -2,25 +2,6 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { PlusCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 
-const dummy_data = [
-    "College Sports",
-    "Professional Sports",
-    "Entertainment",
-    "Business",
-    "Lifestyle",
-    "Health/Medicine",
-    "Government",
-    "Politics",
-    "Foreign Affairs",
-    "Economic",
-    "Domestic Affairs",
-    "Media",
-    "Science/Technology",
-    "Environment",
-    "Arts",
-    "Travel",
-];
-
 export default function SelectInterests({}) {
     const { username } = useParams();
     const [inputWord, setInputWord] = useState("");
@@ -108,7 +89,7 @@ export default function SelectInterests({}) {
                             type="button"
                             id={data}
                             onClick={handleClick}
-                            className="border-2 transition ease-in-out stroke-green-600 hover:stroke-white duration-500 border-green-600 bg-white hover:bg-green-600 text-green-600 hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
+                            className="border-2 text-center transition ease-in-out stroke-green-600 hover:stroke-white duration-500 border-green-600 bg-white hover:bg-green-600 text-green-600 hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
                         >
                             {data}
                             <CheckCircleIcon
@@ -122,7 +103,7 @@ export default function SelectInterests({}) {
                             type="button"
                             id={data}
                             onClick={handleClick}
-                            className="border-2 transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-gray-400 hover:border-green-600 bg-white hover:bg-green-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
+                            className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-gray-400 hover:border-green-600 bg-white hover:bg-green-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
                         >
                             {data}
                             <PlusCircleIcon
