@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PlusCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 
 export default function SelectInterests({}) {
@@ -24,21 +24,24 @@ export default function SelectInterests({}) {
         Travel: 0,
     });
 
-    useEffect(() => {}, [interestsObj]);
-
     const handleClick = (e) => {
-        setInterestsObj((interestsObj) => ({
-            ...interestsObj,
-            [e.target.id]: !interestsObj[e.target.id],
-        }));
+        if (e.target.id.length > 0) {
+            setInterestsObj((interestsObj) => ({
+                ...interestsObj,
+                [e.target.id]: !interestsObj[e.target.id],
+            }));
+        }
     };
 
     const handleAddInterest = (e) => {
         e.preventDefault();
-        setInterestsObj((interestsObj) => ({
-            ...interestsObj,
-            [inputWord.replace(/^[a-zA-Z]/, inputWord[0].toUpperCase())]: 1,
-        }));
+        const word = inputWord.trim();
+        if (word.length > 0) {
+            setInterestsObj((interestsObj) => ({
+                ...interestsObj,
+                [word.replace(/^[a-zA-Z]/, word[0].toUpperCase())]: 1,
+            }));
+        }
         setInputWord("");
     };
 
