@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
     HeartIcon,
     ChatBubbleBottomCenterIcon as ChatBubble,
@@ -29,9 +30,11 @@ const PostInfo = ({ user, date, content, likes, comments }) => {
     return (
         <div className="order-last sm:order-first">
             <div className="relative font-merriweather text-lg">
-                <div className="inline font-semibold  text-theme-dark-red pr-1">
-                    {user}
-                </div>
+                <Link to={"/profile/" + user}>
+                    <div className="inline font-semibold  text-theme-dark-red pr-1">
+                        {user}
+                    </div>
+                </Link>
                 <div className="inline font-light font-sans text-gray-500 pr-2">
                     {displayDiff}
                 </div>
@@ -54,9 +57,11 @@ const PostInfo = ({ user, date, content, likes, comments }) => {
             </div>
             {comments.map((comment) => (
                 <div className="relative text-sm font-merriweather">
-                    <div className="inline font-semibold text-theme-dark-red pr-2">
-                        {comment[1]}
-                    </div>
+                    <Link to={"/profile/" + comment[1]}>
+                        <div className="inline font-semibold text-theme-dark-red pr-2">
+                            {comment[1]}
+                        </div>
+                    </Link>
                     {comment[4]}
                 </div>
             ))}

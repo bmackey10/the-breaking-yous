@@ -1,4 +1,4 @@
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function Register() {
     return (
@@ -301,16 +301,10 @@ export default function Register() {
 
                     <div className="mt-6 flex items-center justify-center gap-x-6">
                         <button
-                            type="button"
-                            className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
-                        >
-                            Cancel
-                        </button>
-                        <button
                             type="submit"
                             className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
                         >
-                            Save
+                            Submit
                         </button>
                     </div>
                 </form>

@@ -11,21 +11,23 @@ import Header from "../src/Components/Header/Header.js";
 
 function App() {
     return (
-        <Router>
-            <Header />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/for-you" element={<ForYou />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/log-in" element={<LogIn />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/profile/:username" element={<Profile />} />
-                <Route
-                    path="/profile/:username/select-interests"
-                    element={<SelectInterests />}
-                />
-            </Routes>
-        </Router>
+        <div className="h-dvh">
+            <Router>
+                <Header />
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/for-you" element={<ForYou />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/log-in" element={<LogIn />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/profile/:username" element={<Profile />} />
+                    <Route
+                        path="/profile/:username/select-interests"
+                        element={<SelectInterests />}
+                    />
+                </Routes>
+            </Router>
+        </div>
     );
 }
 
