@@ -8,15 +8,15 @@ docker run -p 3000:3000 breaking-youse
 
 ## EC2 Hosting
 # If you have an ec2 instance and would like to host it there, in your local repo:
-docker build -t breaking-youse . 
-docker save -o breaking-youse.tar breaking-youse
+docker build -t breaking-youse .  <br>
+docker save -o breaking-youse.tar breaking-youse <br>
 From here, you have to copy the tar file from local (or wherever you have ur repo) to the ec2 instance. Either scp or sftp works. 
 
 # In your ec2 instance:
 ## Make sure you install docker.
 ## If docker and prettier is not installed:
-sudo yum install docker -y
-sudo yum install prettier -y
+sudo yum install docker -y <br>
+sudo yum install prettier -y <br>
 ## Else:
 docker load -i breaking-youse.tar (you might need to sudo to bypass)
 
