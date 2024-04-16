@@ -17,7 +17,8 @@ From here, you have to copy the tar file from local (or wherever you have ur rep
 ## If docker and prettier is not installed:
 sudo yum install docker -y <br>
 sudo yum install prettier -y <br>
-## Else:
+## Once you do that:
+sudo service docker start <br>
 docker load -i breaking-youse.tar (you might need to sudo to bypass)
 
 ## After loading the Docker image, you can use the docker images command to verify that the image is available on the EC2 instance:
