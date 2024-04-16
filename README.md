@@ -3,7 +3,7 @@ Dockerfile is present in the repository.
 
 # Local startup
 ## If you want to just run it locally with a docker image, these are the commands:
-docker build -t breaking-youse .
+docker build -t breaking-youse . <br>
 docker run -p 3000:3000 breaking-youse
 
 ## EC2 Hosting
