@@ -1,4 +1,4 @@
-# Getting Started with Breaking Youse App Dockerized into ec2 instance. 
+# Getting Started with Breaking Yous App Dockerized into ec2 instance. 
 Dockerfile is present in the repository. 
 
 # Local startup
