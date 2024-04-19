@@ -30,7 +30,7 @@ docker load -i breaking-youse.tar (you might need to sudo to bypass)
 docker images
 
 ## Now you can start up and run the container using this image
-sudo docker run -d -p 80:3000 breaking-youse
+sudo docker run -d -e PORT=8012 -p 80:8012 breaking-youse
 
 ## To stop it, find the container ID with 
 sudo docker ps 
