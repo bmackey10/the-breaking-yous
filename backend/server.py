@@ -1,13 +1,11 @@
 from flask import Flask, request, render_template, render_template_string
 from flask import redirect, session
-# from flask_mysqldb import MySQL
 from flask import jsonify 
-# from flask_cors import CORS
+from flask_cors import CORS
 import logging
 from threading import Thread
 import getpass
-import oracledb
-
+import cx_oracle
 
 # # Create a new flask instance
 # app = Flask(__name__)
