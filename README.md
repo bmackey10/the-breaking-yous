@@ -1,4 +1,4 @@
-# Getting Started with Breaking Youse App Dockerized into ec2 instance. 
+# Getting Started with Breaking Yous App Dockerized into ec2 instance. 
 Dockerfile is present in the repository. 
 
 # Local startup
@@ -17,14 +17,20 @@ From here, you have to copy the tar file from local (or wherever you have ur rep
 ## If docker and prettier is not installed:
 sudo yum install docker -y <br>
 sudo yum install prettier -y <br>
-## Else:
+## Once you do that, start your service with:
+sudo service docker start <br>
+
+## To check if the service is running: 
+sudo docker --version
+
+## After that, you can load the image with:
 docker load -i breaking-youse.tar (you might need to sudo to bypass)
 
 ## After loading the Docker image, you can use the docker images command to verify that the image is available on the EC2 instance:
 docker images
 
 ## Now you can start up and run the container using this image
-sudo docker run -d -p 80:3000 breaking-youse
+sudo docker run -d -e PORT=8012 -p 80:8012 breaking-youse
 
 ## To stop it, find the container ID with 
 sudo docker ps 
