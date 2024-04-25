@@ -6,7 +6,7 @@ import NewspaperIcon from "../../Images/newspaper.png";
 
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const loggedIn = true;
+    const loggedIn = false;
 
     return (
         <header className="bg-theme-navy-blue">
