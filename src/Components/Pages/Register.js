@@ -1,6 +1,44 @@
+import { useState } from 'react';
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function Register() {
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        birthDate: '',
+        phoneNumber: '',
+        email: '',
+        country: 'United States',
+    });
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('http://3.227.133.217:8022/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                console.log('Registration successful');
+            } else {
+                console.error('Registration failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     return (
         <div>
             <header className="bg-white shadow">
@@ -11,7 +49,7 @@ export default function Register() {
                 </div>
             </header>
             <main>
-                <form className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12">
+                <form className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12" onSubmit={handleSubmit}>
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="sm:col-span-3 sm:col-start-1">
@@ -29,6 +67,7 @@ export default function Register() {
                                             id="username"
                                             autoComplete="username"
                                             className="block w-full pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
+                                            onChange={handleChange}
                                         />
                                     </div>
                                 </div>
@@ -43,11 +82,12 @@ export default function Register() {
                                 <div className="mt-2">
                                     <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-theme-dark-red sm:max-w-md">
                                         <input
-                                            type="text"
+                                            type="password"
                                             name="password"
                                             id="password"
-                                            autoComplete="password"
+                                            autoComplete="new-password"
                                             className="block w-full pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
+                                            onChange={handleChange}
                                         />
                                     </div>
                                 </div>
@@ -84,10 +124,11 @@ export default function Register() {
                                 <div className="mt-2">
                                     <input
                                         type="text"
-                                        name="first-name"
+                                        name="firstName"
                                         id="first-name"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -101,16 +142,17 @@ export default function Register() {
                                 <div className="mt-2">
                                     <input
                                         type="text"
-                                        name="last-name"
+                                        name="lastName"
                                         id="last-name"
                                         autoComplete="family-name"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
                             <div className="sm:col-span-2">
                                 <label
-                                    htmlFor="first-name"
+                                    htmlFor="birth-date"
                                     className="block text-sm font-semibold font-merriweather leading-6 text-black"
                                 >
                                     Birth Date
@@ -118,17 +160,18 @@ export default function Register() {
                                 <div className="mt-2">
                                     <input
                                         type="text"
-                                        name="first-name"
-                                        id="first-name"
-                                        autoComplete="given-name"
+                                        name="birthDate"
+                                        id="birth-date"
+                                        autoComplete="bday"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         placeholder="MM/DD/YYYY"
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
                             <div className="sm:col-span-3 sm:col-start-1">
                                 <label
-                                    htmlFor="first-name"
+                                    htmlFor="phone-number"
                                     className="block text-sm font-semibold font-merriweather leading-6 text-black"
                                 >
                                     Phone Number
@@ -136,10 +179,11 @@ export default function Register() {
                                 <div className="mt-2">
                                     <input
                                         type="text"
-                                        name="first-name"
-                                        id="first-name"
-                                        autoComplete="given-name"
+                                        name="phoneNumber"
+                                        id="phone-number"
+                                        autoComplete="tel"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -157,6 +201,7 @@ export default function Register() {
                                         type="email"
                                         autoComplete="email"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
+                                        onChange={handleChange}
                                     />
                                 </div>
                             </div>
@@ -175,6 +220,8 @@ export default function Register() {
                                         name="country"
                                         autoComplete="country-name"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:max-w-xs sm:text-sm sm:leading-6"
+                                        onChange={handleChange}
+                                        value={formData.country}
                                     >
                                         <option>United States</option>
                                         <option>Canada</option>
