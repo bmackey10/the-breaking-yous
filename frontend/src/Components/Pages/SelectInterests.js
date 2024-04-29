@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { PlusCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 
-export default function SelectInterests({}) {
+export default function SelectInterests() {
     const { username } = useParams();
     const [inputWord, setInputWord] = useState("");
     const [interestsObj, setInterestsObj] = useState({

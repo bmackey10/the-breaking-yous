@@ -14,6 +14,25 @@ cursor = oracle_connection.cursor()
 def index():
     return "Welcome to the Flask Server!"
 
+@app.route('/log-in', methods=['GET'])
+def login_user():
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+
+        query = "SELECT * FROM users WHERE username == :1 and password == :2"
+        cursor.execute(query, (username, password))
+        users = cursor.fetchall()
+        
+        if users:
+            return jsonify({'success': True, 'users': users})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+
 @app.route('/register', methods=['POST'])
 def register_user():
     try:
