@@ -24,12 +24,12 @@ export default function Home() {
                             </div>
                             <div className="sm:col-span-4 sm:col-start-2 pt-4 flex flex-row gap-4">
                                 <Link to="/log-in">
-                                    <button class="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                    <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                                         Log In
                                     </button>
                                 </Link>
                                 <Link to="/register">
-                                    <button class="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                    <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                                         Register
                                     </button>
                                 </Link>
