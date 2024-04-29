@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-
+/* 
 const dummy_data = {
     username: "bmackey",
     photo: "/profile-pic.JPG",
@@ -18,14 +18,40 @@ const dummy_data = {
         "Science/Technology",
         "Environment",
     ],
-    friends: ["hsaiopat", "annamuller2"],
+    friends: ["hsiaopat", "annamuller2"],
     posts: [
         "Environmental Protection Agency Limits Pollution From Chemical Plants",
     ],
-};
+};*/
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Profile() {
     const { username } = useParams();
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch(`http://3.227.133.217:8022/users/${username}`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    setUserData(userData);
+                } else {
+                    console.error('Failed to fetch user data');
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, [username]);
+
+    if (!userData) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div class="p-16">
@@ -34,7 +60,7 @@ export default function Profile() {
                     <div class="grid grid-cols-2 text-center order-last md:order-first mt-20 md:mt-0">
                         <div>
                             <p class="font-bold text-gray-700 font-merriweather text-xl">
-                                {dummy_data.friends.length}
+                                {userData.friends.length}
                             </p>
                             <p class="text-gray-400 font-merriweather">
                                 Friends
@@ -42,7 +68,7 @@ export default function Profile() {
                         </div>
                         <div>
                             <p class="font-bold text-gray-700 font-merriweather text-xl">
-                                {dummy_data.posts.length}
+                                {userData.posts.length}
                             </p>
                             <p class="text-gray-400 font-merriweather">Posts</p>
                         </div>
@@ -50,7 +76,7 @@ export default function Profile() {
                     <div class="relative">
                         <div class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
                             <img
-                                src={dummy_data.photo}
+                                src={userData.photo}
                                 className="rounded-full"
                             />
                         </div>
@@ -65,10 +91,10 @@ export default function Profile() {
 
                 <div class="mt-20 text-center border-b pb-12">
                     <h1 class="text-4xl font-medium font-merriweather text-gray-700">
-                        {dummy_data.firstName} {dummy_data.lastName}
+                        {userData.firstName} {userData.lastName}
                     </h1>
                     <p class="font-light font-merriweather text-theme-dark-red mt-3">
-                        {dummy_data.city}, {dummy_data.state}
+                        {userData.city}, {userData.state}
                     </p>
                 </div>
 
@@ -77,10 +103,9 @@ export default function Profile() {
                         Interests
                     </div>
                     <div class="flex flex-row flex-wrap justify-center gap-2 lg:px-16">
-                        {dummy_data.interests.map((interest) => (
+                        {userData.interests.map((interest) => (
                             <div
-                                type="button"
-                                id={interest}
+                                key={interest}
                                 className="border-2 text-center border-gray-400 bg-white text-theme-navy-blue  font-merriweather rounded-full px-4 py-2 font-semibold"
                             >
                                 {interest}
