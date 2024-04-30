@@ -40,6 +40,7 @@ instance/
 
 # byte-compiled / optimized / DLL files
 __pycache__/
+/src/apis/__pycache__/
 *.py[cod]
 *$py.class
 

@@ -11,6 +11,7 @@ module.exports = {
                     'default': '#ffe6cf',
                     'light': '#fff3e8',
                 },
+                'theme-star-yellow': '#f5d142',
             },
             fontFamily: {
                 'merriweather': ['Merriweather', 'sans-serif'],
