@@ -5,7 +5,6 @@ import {
 } from "@heroicons/react/24/outline";
 
 const Article = ({ id, url, img, auth, date, title, desc, type }) => {
-    const [starred, setStarred] = useState();
 
     return (
         <Link
