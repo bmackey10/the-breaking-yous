@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import cx_Oracle
+import sys
 
 app = Flask(__name__)
 
@@ -14,19 +15,24 @@ cursor = oracle_connection.cursor()
 def index():
     return "Welcome to the Flask Server!"
 
-@app.route('/log-in', methods=['GET'])
+# THIS ONE WORKS
+@app.route('/login_user', methods=['GET'])
 def login_user():
     try:
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
 
-        query = "SELECT * FROM users WHERE username == :1 and password == :2"
-        cursor.execute(query, (username, password))
-        users = cursor.fetchall()
+        cursor.execute("SELECT * FROM users WHERE username = :username and password = :password", {'username': request.args.get('username'), 'password': request.args.get('password')})
+        user = cursor.fetchone()
+
+        print("user: ", user, file=sys.stderr)
+        # Extract the employee data from the database
+        user_id = user[0]
+        username = user[1]
+        password = user[2]
+        first = user[3]
+        last = user[4]
         
-        if users:
-            return jsonify({'success': True, 'users': users})
+        if user:
+            return jsonify({'success': True, 'users': [user_id, username, password, first, last]})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
