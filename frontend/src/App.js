@@ -7,6 +7,7 @@ import LogIn from "../src/Components/Pages/LogIn.js";
 import Register from "../src/Components/Pages/Register.js";
 import Profile from "../src/Components/Pages/Profile.js";
 import SelectInterests from "../src/Components/Pages/SelectInterests.js";
+import CreatePost from "../src/Components/Pages/CreatePost.js";
 import Header from "../src/Components/Header/Header.js";
 
 function App() {
@@ -24,6 +25,10 @@ function App() {
                     <Route
                         path="/profile/:username/select-interests"
                         element={<SelectInterests />}
+                    />
+                    <Route
+                        path="/create-post/:post_id"
+                        element={<CreatePost />}
                     />
                 </Routes>
             </Router>

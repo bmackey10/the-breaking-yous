@@ -1,38 +1,49 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function Register() {
     const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        firstName: '',
-        lastName: '',
-        birthDate: '',
-        phoneNumber: '',
-        email: '',
-        country: 'United States',
+        username: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        phoneNumber: "",
+        email: "",
+        country: "United States",
     });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(formData);
 
-        try {
-            const response = await fetch('http://3.227.133.217:8022/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
+        // try {
+        //     const response = await fetch('http://3.227.133.217:8022/register', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify(formData),
+        //     });
 
-            if (response.ok) {
-                console.log('Registration successful');
-            } else {
-                console.error('Registration failed');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        //     if (response.ok) {
+        //         console.log('Registration successful');
+        //     } else {
+        //         console.error('Registration failed');
+        //     }
+        // } catch (error) {
+        //     console.error('Error:', error);
+        // }
+        setFormData({
+            username: "",
+            password: "",
+            firstName: "",
+            lastName: "",
+            birthDate: "",
+            phoneNumber: "",
+            email: "",
+            country: "United States",
+        });
     };
 
     const handleChange = (e) => {
@@ -49,7 +60,10 @@ export default function Register() {
                 </div>
             </header>
             <main>
-                <form className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12" onSubmit={handleSubmit}>
+                <form
+                    className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12"
+                    onSubmit={handleSubmit}
+                >
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="sm:col-span-3 sm:col-start-1">
@@ -68,6 +82,7 @@ export default function Register() {
                                             autoComplete="username"
                                             className="block w-full pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
                                             onChange={handleChange}
+                                            value={formData.username}
                                         />
                                     </div>
                                 </div>
@@ -88,6 +103,7 @@ export default function Register() {
                                             autoComplete="new-password"
                                             className="block w-full pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
                                             onChange={handleChange}
+                                            value={formData.password}
                                         />
                                     </div>
                                 </div>
@@ -129,6 +145,7 @@ export default function Register() {
                                         autoComplete="given-name"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         onChange={handleChange}
+                                        value={formData.firstName}
                                     />
                                 </div>
                             </div>
@@ -147,6 +164,7 @@ export default function Register() {
                                         autoComplete="family-name"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         onChange={handleChange}
+                                        value={formData.lastName}
                                     />
                                 </div>
                             </div>
@@ -166,6 +184,7 @@ export default function Register() {
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         placeholder="MM/DD/YYYY"
                                         onChange={handleChange}
+                                        value={formData.birthDate}
                                     />
                                 </div>
                             </div>
@@ -184,6 +203,7 @@ export default function Register() {
                                         autoComplete="tel"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         onChange={handleChange}
+                                        value={formData.phoneNumber}
                                     />
                                 </div>
                             </div>
@@ -202,6 +222,7 @@ export default function Register() {
                                         autoComplete="email"
                                         className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-theme-dark-red sm:text-sm sm:leading-6"
                                         onChange={handleChange}
+                                        value={formData.email}
                                     />
                                 </div>
                             </div>
