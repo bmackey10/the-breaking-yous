@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import {
+    StarIcon,
+} from "@heroicons/react/24/outline";
 
 const Article = ({ id, url, img, auth, date, title, desc, type }) => {
+
     return (
         <Link
             to={url}
@@ -11,6 +16,9 @@ const Article = ({ id, url, img, auth, date, title, desc, type }) => {
                 <img src={img} className="w-full rounded-lg" alt="article" />
                 <div className="pt-4">
                     <div className="flex flex-row flex-wrap text-sm font-merriweather items-center gap-2">
+                        {(type === "community" || type === "for-you") && (
+                            <StarIcon className="h-8 w-8 stroke-black hover:fill-theme-star-yellow hover:stroke-theme-star-yellow" aria-hidden="true" /> 
+                        )}
                         <div className="text-theme-dark-red">{auth}</div>
                         <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
                         <div className="font-light">{date}</div>
