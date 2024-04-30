@@ -86,12 +86,14 @@ export default function ForYou() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-flow-row gap-10">
                         {dummy_data.map((data) => (
                             <Article
+                                id={data[0]}
                                 url={data[5]}
                                 img={data[6]}
                                 auth={data[2]}
                                 date={data[3]}
                                 title={data[1]}
                                 desc={data[7]}
+                                type="for-you"
                             />
                         ))}
                     </div>

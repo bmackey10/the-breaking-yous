@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Article = ({ url, img, auth, date, title, desc }) => {
+const Article = ({ id, url, img, auth, date, title, desc, type }) => {
     return (
         <Link
             to={url}
@@ -22,6 +22,15 @@ const Article = ({ url, img, auth, date, title, desc }) => {
                         {desc}
                     </div>
                 </div>
+                {(type === "community" || type === "for-you") && (
+                    <div className="flex justify-center p-2">
+                        <Link to={"/create-post/" + id}>
+                            <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                Post Article
+                            </button>
+                        </Link>
+                    </div>
+                )}
             </div>
         </Link>
     );

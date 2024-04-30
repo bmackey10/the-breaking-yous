@@ -53,12 +53,14 @@ export default function Community() {
                                         comments={data[6]}
                                     />
                                     <Article
+                                        id={data[3][0]}
                                         url={data[3][5]}
                                         img={data[3][6]}
                                         auth={data[3][2]}
                                         date={data[3][3]}
                                         title={data[3][1]}
                                         desc={data[3][7]}
+                                        type="community"
                                     />
                                 </div>
                             </div>
