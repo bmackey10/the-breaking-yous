@@ -11,26 +11,22 @@ export default function LogIn() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
 
-        // try {
-        //     const response = await fetch('http://3.227.133.217:8022/log-in', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify(formData),
-        //     });
-
-        //     if (response.ok) {
-        //         console.log('Log In successful');
-        //     } else {
-        //         console.error('Log In failed');
-        //     }
-        // } catch (error) {
-        //     console.error('Error:', error);
-        // }
-
+        fetch('/login_user?' + new URLSearchParams({
+                username: formData.username,
+                password: formData.password,
+            }), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                return response.json();
+            }).then((data) => {
+                console.log("Log In Found")
+                console.log(data);
+            });
+        
         setFormData({
             username: "",
             password: "",
