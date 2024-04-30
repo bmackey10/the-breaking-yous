@@ -38,9 +38,9 @@ export default function CreatePost() {
                         <form className="flex order-first sm:order-2 flex-col content-start justify-center">
                             <label
                                 htmlFor="post-content"
-                                className="block text-sm font-merriweather font-semibold leading-6 text-black"
+                                className="block text-md font-merriweather font-semibold leading-6 text-black"
                             >
-                                Add a caption...
+                                Add a caption to your post...
                             </label>
                             <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-theme-dark-red sm:max-w-md">
                                 <textarea
