@@ -1,11 +1,17 @@
 from flask import Flask, jsonify, request
 import cx_Oracle
 import sys
+import flask_login
 
 app = Flask(__name__)
 
 # Configure Oracle connection
-oracle_connection = cx_Oracle.connect('guest/guest@localhost:1521/XE')
+#oracle_connection = cx_Oracle.connect('guest/guest@localhost:1521/XE')
+oracle_connection = cx_Oracle.connect('guest/guest@localhost:1521/XE', 
+                                      encoding='UTF-8', 
+                                      nencoding='UTF-8', 
+                                      events=True)
+
 
 # Create a cursor to execute SQL queries
 cursor = oracle_connection.cursor()
