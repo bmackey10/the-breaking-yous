@@ -30,23 +30,32 @@ export default function Profile() {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await fetch(
-                    `http://3.227.133.217:8022/users/${username}`,
-                );
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUserData(userData);
-                } else {
-                    console.error("Failed to fetch user data");
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            }
-        };
+        // const fetchUserData = async () => {
+        //     try {
+        //         const response = await fetch(
+        //             `http://3.227.133.217:8020/users/${username}`,
+        //         );
+        //         if (response.ok) {
+        //             const userData = await response.json();
+        //             setUserData(userData);
+        //         } else {
+        //             console.error("Failed to fetch user data");
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching user data:", error);
+        //     }
+        // };
 
-        fetchUserData();
+        // fetchUserData();
+        fetch('/get_current_user', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            console.log(response)
+            return response.json();
+        }).then((current_user) => console.log(current_user))
     }, [username]);
 
     if (!userData) {
@@ -60,7 +69,7 @@ export default function Profile() {
                     <div className="grid grid-cols-2 text-center order-last md:order-first mt-20 md:mt-0">
                         <div>
                             <p className="font-bold text-gray-700 font-merriweather text-xl">
-                                {userData.friends.length}
+                               {userData.friends.length} 
                             </p>
                             <p className="text-gray-400 font-merriweather">
                                 Friends

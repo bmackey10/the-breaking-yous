@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-export default function LogIn() {
+export default function LogIn({ sendToParent }) {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -12,19 +12,30 @@ export default function LogIn() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        fetch('/login_user?' + new URLSearchParams({
-                username: formData.username,
-                password: formData.password,
-            }), {
-                method: 'GET',
+        fetch('/login', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify(formData)
             }).then((response) => {
+                console.log(response)
                 return response.json();
             }).then((data) => {
                 console.log("Log In Found")
                 console.log(data);
+                fetch('/get_current_user', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }).then((response) => {
+                    console.log(response)
+                    return response.json();
+                }).then((current_user) => {
+                    console.log(current_user)
+                    sendToParent(current_user)
+                })
             });
         
         setFormData({
