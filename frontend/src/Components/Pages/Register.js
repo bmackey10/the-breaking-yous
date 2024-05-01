@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 
+
 export default function Register() {
     const [formData, setFormData] = useState({
         username: "",
@@ -15,25 +16,27 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-        // try {
-        //     const response = await fetch('http://3.227.133.217:8022/register', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify(formData),
-        //     });
+            if (response.ok) {
+                console.log('Registration successful');
+                // Optionally, you can redirect the user to another page after successful registration
+            } else {
+                console.error('Registration failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
 
-        //     if (response.ok) {
-        //         console.log('Registration successful');
-        //     } else {
-        //         console.error('Registration failed');
-        //     }
-        // } catch (error) {
-        //     console.error('Error:', error);
-        // }
+        // Reset form data after submission
         setFormData({
             username: "",
             password: "",

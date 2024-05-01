@@ -4,12 +4,18 @@ import sys
 from flask_login import LoginManager, UserMixin, current_user, login_user
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+#from werkzeug.security import generate_password_hash
+
 
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@i-058e93772ad5aab46.aws.nd.edu:1521/XE"
 app.config["SECRET_KEY"] = '4d53112ca3f996eaf5572fb3eb7f9eeb4771fea4f0039d5a8f8d133959b14609'
-CORS(app, resources={r"/": {"/login": "*"}})
+CORS(app, resources={r"/login": {"origins": "*"},
+                     r"/register": {"origins": "*"}
+                                            
+                                            })
 
 
 db = SQLAlchemy()
@@ -122,32 +128,45 @@ def get_current_user():
 
 @app.route('/register', methods=['POST'])
 def register_user():
-   try:
-       # Get data from request
-       data = request.json
-       username = data.get('username')
-       password = data.get('password')
-       first_name = data.get('first_name')
-       last_name = data.get('last_name')
-       birth_date = data.get('birth_date')
-       phone_number = data.get('phone_number')
-       email = data.get('email')
-       country = data.get('country')
+    try:
+        # Get data from request
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        firstName = data.get('firstName')
+        lastName = data.get('lastName')
+        birthDate = data.get('birthDate')
+        phoneNumber = data.get('phoneNumber')
+        email = data.get('email')
+        country = data.get('country')
+        # Perform validation if needed
+        if not username or not password or not firstName or not lastName or not birthDate or not phoneNumber or not email or not country:
+            return jsonify({'success': False, 'error': 'All fields are required'}), 400
+
+        # Hash the password
+        #hashed_password = generate_password_hash(password)
 
 
-       # Perform validation if needed
-      
-       # Insert user data into database
-       query = "INSERT INTO users (username, password, first_name, last_name, birth_date, phone_number, email, country) VALUES (:1, :2, :3, :4, TO_DATE(:5, 'MM/DD/YYYY'), :6, :7, :8)"
-       cursor.execute(query, (username, password, first_name, last_name, birth_date, phone_number, email, country))
-       oracle_connection.commit()
+        try:
+            # Convert birthDate to the required format
+            birthDate_formatted = datetime.strptime(birthDate, '%m/%d/%Y').strftime('%d-%b-%y')
+            
+            query = "INSERT INTO users (username, password, first_name, last_name, birth_date, phone_number, email, country) VALUES (:username, :password, :first_name, :last_name, TO_DATE(:birth_date, 'DD-MON-YY'), :phone_number, :email, :country)"
+            cursor.execute(query, {'username': username, 'password': password, 'first_name': firstName, 'last_name': lastName, 'birth_date': birthDate_formatted, 'phone_number': phoneNumber, 'email': email, 'country': country})
+            oracle_connection.commit()
+            print("User inserted successfully.")
+        except Exception as e:
+            print("Error occurred while inserting user:", e)
+            oracle_connection.rollback()  # Rollback the transaction in case of error
 
 
-       return jsonify({'success': True, 'message': 'User registered successfully'})
+        
+        print("whoa")
 
+        return jsonify({'success': True, 'message': 'User registered successfully'})
 
-   except Exception as e:
-       return jsonify({'success': False, 'error': str(e)})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
   
 # API to fetch all users
 @app.route('/users', methods=['GET'])
