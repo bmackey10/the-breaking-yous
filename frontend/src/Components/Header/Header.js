@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import NewspaperIcon from "../../Images/newspaper.png";
 
-export default function Header() {
+export default function Header({ status }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const loggedIn = false;
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+    useEffect(() => {
+        setIsLoggedIn(status)
+    }, [status]);
 
     return (
         <header className="bg-theme-navy-blue">
@@ -38,7 +42,7 @@ export default function Header() {
                         </Link>
                     </div>
                     <div className="hidden lg:flex lg:cols-span-1 lg:justify-end">
-                        {loggedIn ? (
+                        {isLoggedIn ? (
                             <Link
                                 to="/profile/bmackey"
                                 className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
@@ -115,7 +119,7 @@ export default function Header() {
                                 </Link>
                             </div>
                             <div className="py-6">
-                                {loggedIn ? (
+                                {isLoggedIn ? (
                                     <Link
                                         to="/profile/bmackey"
                                         className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"

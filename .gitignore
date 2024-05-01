@@ -33,6 +33,7 @@ ENV/
 env.bak/
 venv.bak/
 node_modules
+/backend/xe
 
 # flask stuff
 instance/
@@ -63,3 +64,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+#docker
+/frontend/frontendtest.tar
+/backend/backendendtest.tar

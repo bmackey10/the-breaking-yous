@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Home from "../src/Components/Pages/Home.js";
 import ForYou from "../src/Components/Pages/ForYou.js";
@@ -11,15 +12,22 @@ import CreatePost from "../src/Components/Pages/CreatePost.js";
 import Header from "../src/Components/Header/Header.js";
 
 function App() {
+
+    const [currUser, setCurrUser] = useState({})
+
+    const handleLogin = (param) => {
+        setCurrUser(param)
+    }
+
     return (
         <div className="h-dvh">
             <Router>
-                <Header />
+                <Header status={currUser.authenticated}/>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/for-you" element={<ForYou />} />
                     <Route path="/community" element={<Community />} />
-                    <Route path="/log-in" element={<LogIn />} />
+                    <Route path="/log-in" element={<LogIn sendToParent={handleLogin} />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:username" element={<Profile />} />
                     <Route
