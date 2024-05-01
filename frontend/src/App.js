@@ -12,22 +12,15 @@ import CreatePost from "../src/Components/Pages/CreatePost.js";
 import Header from "../src/Components/Header/Header.js";
 
 function App() {
-
-    const [currUser, setCurrUser] = useState({})
-
-    const handleLogin = (param) => {
-        setCurrUser(param)
-    }
-
     return (
         <div className="h-dvh">
             <Router>
-                <Header status={currUser.authenticated}/>
+                <Header />
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/for-you" element={<ForYou />} />
                     <Route path="/community" element={<Community />} />
-                    <Route path="/log-in" element={<LogIn sendToParent={handleLogin} />} />
+                    <Route path="/log-in" element={<LogIn />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:username" element={<Profile />} />
                     <Route

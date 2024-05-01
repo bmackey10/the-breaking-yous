@@ -1,17 +1,22 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 import cx_Oracle
 import sys
-from flask_login import LoginManager, UserMixin, current_user, login_user
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import timedelta, datetime
+import random
+
+sys.path.append("sqlcommands/commands")
+from algorithm import simulate_recommendation_algorithm as user_recs
 #from werkzeug.security import generate_password_hash
 
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@i-058e93772ad5aab46.aws.nd.edu:1521/XE"
+app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@172.22.134.159:1521/XE"
 app.config["SECRET_KEY"] = '4d53112ca3f996eaf5572fb3eb7f9eeb4771fea4f0039d5a8f8d133959b14609'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 CORS(app, resources={r"/login": {"origins": "*"},
                      r"/register": {"origins": "*"}
                                             
@@ -56,7 +61,7 @@ with app.app_context():
 
 
 # Configure Oracle connection
-oracle_connection = cx_Oracle.connect('guest/guest@localhost:1521/XE')
+oracle_connection = cx_Oracle.connect('guest/guest@172.22.134.159:1521/XE')
 
 
 # Create a cursor to execute SQL queries
@@ -66,18 +71,14 @@ cursor = oracle_connection.cursor()
 # Define routes
 @app.route('/')
 def index():
-   return "Welcome to the Flask Server!"
+    if 'username' in session:
+        return f'Logged in as {session["username"]}'
+    return 'You are not logged in'
 
 
 @login_manager.user_loader
 def loader_user(user_id):
    return Users.query.get(user_id)
-
-
-# is_authenticated: a property that is True if the user has valid credentials or False otherwise.
-# is_active: a property that is True if the user's account is active or False otherwise.
-# is_anonymous: a property that is False for regular users, and True only for a special, anonymous user.
-# get_id(): a method that returns a unique identifier for the user as a string.
 
 
 # THIS ONE WORKS
@@ -92,7 +93,8 @@ def login():
         user = Users.query.filter_by(username=user_str).first()
 
         if user.password == pass_str:
-            login_user(user)
+            login_user(user, remember=True)
+            session['username'] = user_str
             print('Logged in successfully.', file=sys.stderr)
 
 
@@ -115,15 +117,18 @@ def login():
         return jsonify({'success': False, 'error': str(e)})
 
 
-@app.route("/logout")
+@app.route("/logout", methods=['POST'])
 def logout():
-   logout_user()
-   return jsonify({'success': True})
+    logout_user()
+    logout_user_str = session.get('username')
+    return jsonify({'success': True, 'logout_user': logout_user_str })
 
 
 @app.route("/get_current_user", methods=['POST'])
 def get_current_user():
-    return jsonify({'authenticated': current_user.is_authenticated, 'user_id': current_user.user_id, 'username': current_user.username, 'firstName': current_user.first_name, 'lastName': current_user.last_name, })
+    if current_user.is_authenticated:
+        return jsonify({'authenticated': current_user.is_authenticated, 'user_id': current_user.user_id, 'username': current_user.username, 'firstName': current_user.first_name, 'lastName': current_user.last_name, })
+    return jsonify({'authenticated': current_user.is_authenticated})
 
 
 @app.route('/register', methods=['POST'])
@@ -167,62 +172,80 @@ def register_user():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-  
-# API to fetch all users
-@app.route('/users', methods=['GET'])
-def get_all_users():
-   try:
-       query = "SELECT * FROM users"
-       cursor.execute(query)
-       users = cursor.fetchall()
-      
-       user_data = []
-       for user in users:
-           user_data.append({
-               'user_id': user[0],
-               'username': user[1],
-               'first_name': user[3],
-               'last_name': user[4],
-               'email': user[6],
-               'phone_number': user[5],
-               'birth_date': user[2],
-               'country': user[7]
-           })
 
 
-       return jsonify({'success': True, 'users': user_data})
+@app.route('/for-you', methods=['POST'])
+def recommed_six_artcles():
+    try:
+        #REPLACE THIS LINE WITH A REAL USER
+        sample_user = 1
 
+        #GET TODAYS DATE
+        date = datetime.now()
+        date = str(date.strftime('%d-%b-%y')).upper()
 
-   except Exception as e:
-       return jsonify({'success': False, 'error': str(e)})
+        #GET USER INTERESTS
+        topics_query = f"SELECT topic from userinterests where user_id = {sample_user}"
+        cursor.execute(topics_query)
+        topics = [row[0] for row in cursor.fetchall()]
 
+        
+        #Get recommended articles for today from articles and move them to userarticles table
+        #This probably needs to also happen once a year but idk where to put this just yet - leaving it commented out for now
+        '''
+        #GET RECOMMENDED ARTICLES FROM TODAY
+        article_ids = []
+        for topic in topics:
+            article_scrape = f"select article_id from (select distinct title, article_id from articles where topic = '{topic}' and TO_CHAR(retrieved_date, 'DD-MON-YY') = '{date}')"
+            cursor.execute(article_scrape)
+            ids = [row[0] for row in cursor.fetchall()]
+            #topics = [row[1] for row in cursor.fetchall()]
+            article_ids.extend(ids)
+        print(article_ids)
+        print(topics)
 
-# API to fetch user by username
-@app.route('/users/<username>', methods=['GET'])
-def get_user_by_username(username):
-   try:
-       query = "SELECT * FROM users WHERE username = :1"
-       cursor.execute(query, (username,))
-       user = cursor.fetchone()
-      
-       if user:
-           user_data = {
-               'user_id': user[0],
-               'username': user[1],
-               'first_name': user[3],
-               'last_name': user[4],
-               'email': user[6],
-               'phone_number': user[5],
-               'birth_date': user[2],
-               'country': user[7]
-           }
-           return jsonify({'success': True, 'user': user_data})
-       else:
-           return jsonify({'success': False, 'message': 'User not found'})
+        #PUT RECOMMENDED ARTICLES IN THE USERARTICLES TABLE (DO THIS ONCE)
+        
+        for aid in article_ids:
+            get_topic = f"select topic from articles where article_id = {aid}"
+            cursor.execute(get_topic)
+            temp = cursor.fetchone()[0]
+            print(temp)
+            print(sample_user)
+            print(aid)
+            userarticles_insert = f"INSERT INTO userarticles(user_id, article_id,topic, displayed) values({sample_user},{aid},'{temp}',0)"
+            cursor.execute(userarticles_insert)
+        '''
 
+        #Recommend 6 articles (repeat this on a daily basis? or when the user presses a "more button"? tbd
+    
+        recs = []
+        while len(recs) < 6:
+            random.shuffle(topics)
+            for topic in topics:
+                #get a random article for the current topic
+                get_rec_query = f"SELECT article_id FROM ((select article_id FROM userarticles WHERE topic = '{topic}' and user_id = {sample_user} and displayed = 0) ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM <= 1"
+                cursor.execute(get_rec_query)
+                rec = cursor.fetchone()[0]
 
-   except Exception as e:
-       return jsonify({'success': False, 'error': str(e)})
+                #mark that article as displayed
+                update_rec = f"UPDATE userarticles set displayed = 1 where article_id = {rec}"
+                cursor.execute(update_rec)
+
+                #add new recommendation id to recs array
+                recs.append(rec)
+
+                if len(recs) >= 6:
+                    break
+
+        recs = recs[:6]
+
+        return jsonify({'success': True, 'recommendations': recs})
+        return jsonify({'success': True, 'message': 'FYP ids collected successfully'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
 
 
 if __name__ == '__main__':

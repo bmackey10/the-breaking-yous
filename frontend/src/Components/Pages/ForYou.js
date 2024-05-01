@@ -1,4 +1,5 @@
 import Article from "../Modules/Article.js";
+//import simulate_recommendation_algorithm from "../../../../backend/sqlcommands/commands";
 
 const dummy_data = [
     [
