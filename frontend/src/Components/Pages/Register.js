@@ -16,22 +16,22 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         try {
-            const response = await fetch('/register', {
+            fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                console.log('Registration successful');
-                // Optionally, you can redirect the user to another page after successful registration
-            } else {
-                console.error('Registration failed');
-            }
+            }).then((response) => {
+                console.log("User Registered");
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                }
+            })
         } catch (error) {
             console.error('Error:', error);
         }

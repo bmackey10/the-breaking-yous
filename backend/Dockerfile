@@ -29,8 +29,8 @@ ENV LD_LIBRARY_PATH $ORACLE_HOME/lib
 
 #ENV LD_LIBRARY_PATH=xe/lib:$LD_LIBRARY_PATH
 
-# Expose port 5000 to the outside world
+# Expose port 5000 to the outside worlds
 EXPOSE 5000
 
 # Define the command to run your Flask application
-CMD ["python", "app.py"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]

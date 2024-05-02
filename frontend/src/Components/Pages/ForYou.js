@@ -1,77 +1,79 @@
 import Article from "../Modules/Article.js";
-
-const dummy_data = [
-    [
-        0,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-    [
-        1,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-    [
-        2,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-    [
-        3,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-    [
-        4,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-    [
-        5,
-        "Environmental Protection Agency Limits Pollution From Chemical Plants",
-        "Lisa Friedman",
-        "04/09/2024",
-        "The New York Times",
-        "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-        "/09cli-chemplants-superJumbo.webp",
-        "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-        "Environment",
-    ],
-];
-
-// not sure how to incorporate news source
+import { useState, useEffect } from "react";
 
 export default function ForYou() {
+
+    const [articles, setArticles] = useState([]);
+
+    useEffect(() => {
+        fetch('/for-you', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }).then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                console.log(`HTTP Response Code: ${response?.status}`)
+                return "error";
+            }
+        }).then((data) => {
+            if (data != "error") {
+                console.log(data)
+                setArticles(data.articles);
+            } else {
+                console.error('Error fetching articles:', data.error);
+            }
+        });
+    });
+
+    // useEffect(() => {
+    //     fetch('/for-you', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(articleIds)
+    //     })
+    //     // .then(response => response.json())
+    //     // .then(data => setArticleIds(data.topic))
+    //     // .catch(error => console.error('Error fetching article IDs:', error));
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.success) {
+    //             setArticleIds(data.topic);
+    //         } else {
+    //             console.error('Error in response:', data.error);
+    //         }
+    //     })
+    //     .catch(error => console.error('Error fetching article IDs:', error));
+    // }, [articleIds]);
+
+    // useEffect(() => {
+    //     fetch('/for-you', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(articleIds)
+    //     })
+    //     .then(response => {
+    //         if (!response.ok) {
+    //             throw new Error('Network response was not ok');
+    //         }
+    //         return response.json();
+    //     })
+    //     .then(data => {
+    //         // Handle successful response
+    //         console.log(data);
+    //     })
+    //     .catch(error => {
+    //         // Handle error
+    //         console.error('Error fetching data:', error);
+    //     });
+    // }, []);
+
     return (
         <div>
             <header className="bg-white shadow">
@@ -84,15 +86,15 @@ export default function ForYou() {
             <main>
                 <div className="mx-auto max-w-7xl py-6 px-6 sm:px-8 lg:px-10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-flow-row gap-10">
-                        {dummy_data.map((data) => (
+                        {articles.map((article) => (
                             <Article
-                                id={data[0]}
-                                url={data[5]}
-                                img={data[6]}
-                                auth={data[2]}
-                                date={data[3]}
-                                title={data[1]}
-                                desc={data[7]}
+                                id={article.article_id}
+                                url={article.url}
+                                img={article.image_url}
+                                auth={article.author}
+                                date={"04/09/2024"}
+                                title={article.title}
+                                desc={article.description}
                                 type="for-you"
                             />
                         ))}

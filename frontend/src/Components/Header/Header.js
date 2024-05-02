@@ -4,13 +4,41 @@ import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import NewspaperIcon from "../../Images/newspaper.png";
 
-export default function Header({ status }) {
+export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     useEffect(() => {
-        setIsLoggedIn(status)
-    }, [status]);
+        fetch('/get_current_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            return response.json();
+        }).then((current_user) => {
+            setIsLoggedIn(current_user.authenticated);
+        })
+    });
+
+    const handleLogOut = () => {
+        setIsLoggedIn(!isLoggedIn);
+
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log("User Logged Out")
+            console.log(data);
+        })
+
+        setMobileMenuOpen(false);
+        window.location.reload();
+    };
 
     return (
         <header className="bg-theme-navy-blue">
@@ -41,7 +69,7 @@ export default function Header({ status }) {
                             The Breaking Yous
                         </Link>
                     </div>
-                    <div className="hidden lg:flex lg:cols-span-1 lg:justify-end">
+                    <div className="hidden lg:flex lg:col-span-1 lg:gap-x-12 lg:justify-end">
                         {isLoggedIn ? (
                             <Link
                                 to="/profile/bmackey"
@@ -49,6 +77,21 @@ export default function Header({ status }) {
                             >
                                 Profile
                             </Link>
+                        ) : (
+                            <Link
+                                to="/register"
+                                className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
+                            >
+                                Register
+                            </Link>
+                        )}
+                        {isLoggedIn ? (
+                            <button
+                                onClick={handleLogOut}
+                                className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
+                            >
+                                Log Out
+                            </button>
                         ) : (
                             <Link
                                 to="/log-in"
@@ -107,28 +150,49 @@ export default function Header({ status }) {
                             <div className="space-y-2 py-6">
                                 <Link
                                     to="/for-you"
+                                    onClick={() => setMobileMenuOpen(false)}
                                     className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2 text-base font-semibold font-merriweather leading-7 text-white"
                                 >
                                     For You
                                 </Link>
                                 <Link
                                     to="/community"
+                                    onClick={() => setMobileMenuOpen(false)}
                                     className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2 text-base font-semibold font-merriweather leading-7 text-white"
                                 >
                                     Community
                                 </Link>
                             </div>
-                            <div className="py-6">
+                            <div className="space-y-2 py-6">
                                 {isLoggedIn ? (
                                     <Link
                                         to="/profile/bmackey"
+                                        onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
                                     >
                                         Profile
                                     </Link>
                                 ) : (
                                     <Link
+                                        to="/register"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
+                                    >
+                                        Register
+                                    </Link>
+                                )}
+                                {isLoggedIn ? (
+
+                                    <button
+                                        onClick={handleLogOut}
+                                        className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2 text-base font-semibold font-merriweather leading-7 text-white"
+                                    >
+                                        Log Out
+                                    </button>
+                                ) : (
+                                    <Link
                                         to="/log-in"
+                                        onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
                                     >
                                         Log in
@@ -139,6 +203,6 @@ export default function Header({ status }) {
                     </div>
                 </Dialog.Panel>
             </Dialog>
-        </header>
+        </header >
     );
 }

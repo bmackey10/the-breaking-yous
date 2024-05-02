@@ -1,6 +1,24 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Home() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+
+        fetch('/get_current_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            return response.json();
+        }).then((current_user) => {
+            setIsLoggedIn(current_user.authenticated);
+        })
+
+    });
+
     return (
         <div className="relative h-screen w-auto">
             <div className="bg-[url('../public/news_background.jpg')] bg-no-repeat bg-cover bg-center bg-scroll h-full"></div>
@@ -22,18 +40,26 @@ export default function Home() {
                                 you can share the news that you find interesting
                                 with your friends and start a discussion.
                             </div>
-                            <div className="sm:col-span-4 sm:col-start-2 pt-4 flex flex-row gap-4">
-                                <Link to="/log-in">
+                            {isLoggedIn && (<div className="sm:col-span-4 sm:col-start-2 pt-4 flex flex-row gap-4"><Link to="/for-you">
+                                <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                    For You
+                                </button>
+                            </Link>
+                                <Link to="/community">
                                     <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
-                                        Log In
+                                        Community
                                     </button>
-                                </Link>
+                                </Link></div>)}
+                            {!isLoggedIn && (<div className="sm:col-span-4 sm:col-start-2 pt-4 flex flex-row gap-4"><Link to="/log-in">
+                                <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                    Log In
+                                </button>
+                            </Link>
                                 <Link to="/register">
                                     <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                                         Register
                                     </button>
-                                </Link>
-                            </div>
+                                </Link></div>)}
                         </div>
                     </div>
                 </div>
