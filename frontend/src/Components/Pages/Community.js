@@ -25,6 +25,8 @@ export default function Community() {
         fetchPosts();
     }, []);
 
+  
+
     const fetchPosts = () => {
         fetch('/get-posts')
             .then((response) => {
@@ -40,6 +42,8 @@ export default function Community() {
                 console.error('Error fetching posts:', error);
             });
     };
+
+  
 
     return (
         <div>

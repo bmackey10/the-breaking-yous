@@ -535,6 +535,41 @@ def submit_comment():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    
+
+@app.route('/get-comments', methods=['GET'])
+def get_comments():
+    try:
+        # Extract the postId from the request
+        post_id = request.args.get('postId')
+
+        # Execute the query to fetch comments for the specified post
+        cursor.execute("""
+            SELECT CONTENT, DATE_COMMENTED, USERNAME
+            FROM COMMENTS C
+            INNER JOIN USERS U ON C.USER_ID = U.USER_ID
+            WHERE POST_ID = :post_id
+            ORDER BY DATE_COMMENTED DESC
+        """, {'post_id': post_id})
+
+        # Fetch all comments for the post
+        comments_data = cursor.fetchall()
+
+        # Construct a list of dictionaries containing comment details
+        comments = []
+        for comment in comments_data:
+            comment_dict = {
+                'content': comment[0],
+                'date_commented': comment[1],
+                'username': comment[2]
+            }
+            comments.append(comment_dict)
+
+        return jsonify({'success': True, 'comments': comments})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 
