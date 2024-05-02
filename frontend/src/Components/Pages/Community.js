@@ -3,25 +3,42 @@ import Article from "../Modules/Article.js";
 import PostInfo from "../Modules/PostInfo.js";
 
 export default function Community() {
-    const [communityArticles, setCommunityArticles] = useState([]);
+    const [posts, setPosts] = useState([]);
+    const [curr_user, setUser] = useState({});
+
+    const fetchCurrentUser = () => {
+        fetch('/get_current_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            return response.json();
+        }).then((current_user) => {
+            console.log(current_user);
+            setUser({...current_user});
+        });
+    };
 
     useEffect(() => {
-        fetchCommunityArticles();
+        fetchCurrentUser();
+        fetchPosts();
     }, []);
 
-    const fetchCommunityArticles = async () => {
-        try {
-            const response = await fetch('/community-articles');
-            if (response.ok) {
-                const data = await response.json();
-                setCommunityArticles(data.articles);
-            } else {
-                console.error(`HTTP Response Code: ${response.status}`);
-            }
-        } catch (error) {
-
-            console.error('Error fetching community articles:', error);
-        }
+    const fetchPosts = () => {
+        fetch('/get-posts')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP Response Code: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setPosts(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching posts:', error);
+            });
     };
 
     return (
@@ -36,24 +53,26 @@ export default function Community() {
             <main>
                 <div className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12">
                     <div className="grid grid-cols-1 grid-flow-row gap-10">
-                        {communityArticles.map((data) => (
-                            <div key={data.article_id} className="border-0 shadow-xl rounded-lg">
+                        {posts.map((post) => (
+                            <div key={post.POST_ID} className="border-0 shadow-xl rounded-lg">
                                 <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
                                     <PostInfo
-                                        user={data.user_id}
-                                        date={data.publish_date}
-                                        content={data.content}
-                                        likes={data.likes_count}
-                                        comments={data.comments_count}
+                                        user={post.USERNAME}
+                                        date={post.POST_PUBLISH_DATE}
+                                        content={post.CONTENT}
+                                        likes={[]} // Placeholder for likes
+                                        comments={post.COMMENTS || []} // Display comments for the post
+                                        postId={post.POST_ID}
+                                        curr_user={curr_user}
                                     />
                                     <Article
-                                        id={data.article_id}
-                                        url={data.article_url}
-                                        img={data.image_url}
-                                        auth={data.author}
-                                        date={data.article_publish_date}
-                                        title={data.title}
-                                        desc={data.description}
+                                        id={post.ARTICLE_ID}
+                                        url={post.URL}
+                                        img={post.IMAGE_URL}
+                                        auth={post.AUTHOR}
+                                        date={post.ARTICLE_PUBLISH_DATE}
+                                        title={post.TITLE}
+                                        desc={post.DESCRIPTION}
                                     />
                                 </div>
                             </div>
