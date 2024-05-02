@@ -12,7 +12,7 @@ export default function LogIn() {
     const [userError, setUserError] = useState({ "error": false, "errorMessage": "" });
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (formData.username == "" || formData.password == "") {

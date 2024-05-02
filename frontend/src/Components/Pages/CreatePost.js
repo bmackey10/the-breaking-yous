@@ -1,18 +1,61 @@
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Article from "../Modules/Article.js";
 
-const dummy_data = [
-    0,
-    "Environmental Protection Agency Limits Pollution From Chemical Plants",
-    "Lisa Friedman",
-    "04/09/2024",
-    "The New York Times",
-    "https://www.nytimes.com/2024/04/09/climate/epa-pollution-chemical-plants.html",
-    "/09cli-chemplants-superJumbo.webp",
-    "The new regulation is aimed at reducing the risk of cancer for people who live close to plants emitting toxic chemicals.",
-    "Environment",
-];
-
 export default function CreatePost() {
+    const { article_id } = useParams();
+    const [articleInfo, setArticleInfo] = useState(null);
+    const [postContent, setPostContent] = useState("");
+
+    useEffect(() => {
+        fetchArticleInfo();
+    }, [article_id]);
+
+    const fetchArticleInfo = () => {
+        console.log(article_id)
+        fetch('/create-post?' + new URLSearchParams({ article_id: article_id }))
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP Response Code: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (!data.img) {
+                    data.img = `/09cli-chemplants-superJumbo.webp`;
+                }
+                setArticleInfo(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching article information:', error);
+            });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        fetch("/create-post", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                article_id: parseInt(article_id),
+                content: postContent,
+            }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    console.log("Post submitted successfully");
+                    // Optionally, you can redirect the user to another page after successful submission
+                } else {
+                    throw new Error(`HTTP Response Code: ${response.status}`);
+                }
+            })
+            .catch((error) => {
+                console.error('Error submitting post:', error);
+            });
+    };
+
     return (
         <div>
             <header className="bg-white shadow">
@@ -25,17 +68,19 @@ export default function CreatePost() {
             <main>
                 <div className="mx-auto max-w-7xl py-6 px-8 sm:px-10 lg:px-12">
                     <div className="grid sm:grid-cols-2 gap-5 sm:gap-10">
-                        <Article
-                            id={dummy_data[0]}
-                            url={dummy_data[5]}
-                            img={dummy_data[6]}
-                            auth={dummy_data[2]}
-                            date={dummy_data[3]}
-                            title={dummy_data[1]}
-                            desc={dummy_data[7]}
-                            type="create-post"
-                        ></Article>
-                        <form className="flex order-first sm:order-2 flex-col content-start justify-center">
+                        {articleInfo && (
+                            <Article
+                                id={articleInfo.id}
+                                url={articleInfo.url}
+                                img={articleInfo.img}
+                                auth={articleInfo.author}
+                                date={articleInfo.publish_date}
+                                title={articleInfo.title}
+                                desc={articleInfo.description}
+                            />
+                        
+                        )}
+                        <form onSubmit={handleSubmit} className="flex order-first sm:order-2 flex-col content-start justify-center">
                             <label
                                 htmlFor="post-content"
                                 className="block text-md font-merriweather font-semibold leading-6 text-black"
@@ -47,6 +92,8 @@ export default function CreatePost() {
                                     id="post-content"
                                     name="post-content"
                                     rows={3}
+                                    value={postContent}
+                                    onChange={(e) => setPostContent(e.target.value)}
                                     className="block w-full pl-3 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
                                 ></textarea>
                             </div>

@@ -17,10 +17,9 @@ export default function Header() {
         }).then((response) => {
             return response.json();
         }).then((current_user) => {
-            console.log(current_user.authenticated);
             setIsLoggedIn(current_user.authenticated);
         })
-    }, []);
+    });
 
     const handleLogOut = () => {
         setIsLoggedIn(!isLoggedIn);

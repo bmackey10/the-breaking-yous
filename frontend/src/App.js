@@ -28,7 +28,7 @@ function App() {
                         element={<SelectInterests />}
                     />
                     <Route
-                        path="/create-post/:post_id"
+                        path="/create-post/:article_id"
                         element={<CreatePost />}
                     />
                 </Routes>

@@ -4,7 +4,7 @@ import {
     StarIcon,
 } from "@heroicons/react/24/outline";
 
-const Article = ({ id, url, img, auth, date, title, desc, type }) => {
+const Article = ({ id, url, img, auth, date, title, desc }) => {
 
     return (
         <Link
@@ -16,9 +16,7 @@ const Article = ({ id, url, img, auth, date, title, desc, type }) => {
                 <img src={img} className="w-full rounded-lg" alt="article" />
                 <div className="pt-4">
                     <div className="flex flex-row flex-wrap text-sm font-merriweather items-center gap-2">
-                        {(type === "community" || type === "for-you") && (
-                            <StarIcon className="h-8 w-8 stroke-black hover:fill-theme-star-yellow hover:stroke-theme-star-yellow" aria-hidden="true" /> 
-                        )}
+                        <StarIcon className="h-8 w-8 stroke-black hover:fill-theme-star-yellow hover:stroke-theme-star-yellow" aria-hidden="true" />
                         <div className="text-theme-dark-red">{auth}</div>
                         <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
                         <div className="font-light">{date}</div>
@@ -30,15 +28,13 @@ const Article = ({ id, url, img, auth, date, title, desc, type }) => {
                         {desc}
                     </div>
                 </div>
-                {(type === "community" || type === "for-you") && (
-                    <div className="flex justify-center p-2">
-                        <Link to={"/create-post/" + id}>
-                            <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
-                                Post Article
-                            </button>
-                        </Link>
-                    </div>
-                )}
+                <div className="flex justify-center p-2">
+                    <Link to={"/create-post/" + id}>
+                        <button className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                            Post Article
+                        </button>
+                    </Link>
+                </div>
             </div>
         </Link>
     );

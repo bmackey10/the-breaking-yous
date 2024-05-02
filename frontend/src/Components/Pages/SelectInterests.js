@@ -114,7 +114,7 @@ export default function SelectInterests() {
                                 aria-hidden="true"
                             />
                         </button>
-                    ),
+                    )
                 )}
             </div>
         </div>

@@ -14,7 +14,6 @@ export default function Home() {
         }).then((response) => {
             return response.json();
         }).then((current_user) => {
-            console.log(current_user.authenticated);
             setIsLoggedIn(current_user.authenticated);
         })
 
