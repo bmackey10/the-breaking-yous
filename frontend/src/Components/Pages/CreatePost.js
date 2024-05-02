@@ -6,13 +6,14 @@ export default function CreatePost() {
     const { article_id } = useParams();
     const [articleInfo, setArticleInfo] = useState(null);
     const [postContent, setPostContent] = useState("");
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         fetchArticleInfo();
+        fetchCurrentUser();
     }, [article_id]);
 
     const fetchArticleInfo = () => {
-        console.log(article_id)
         fetch('/create-post?' + new URLSearchParams({ article_id: article_id }))
             .then((response) => {
                 if (!response.ok) {
@@ -31,6 +32,19 @@ export default function CreatePost() {
             });
     };
 
+    const fetchCurrentUser = () => {
+        fetch('/get_current_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            return response.json();
+        }).then((current_user) => {
+            setUser({...current_user});
+        });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         fetch("/create-post", {
@@ -39,6 +53,7 @@ export default function CreatePost() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                user_id: user.user_id,
                 article_id: parseInt(article_id),
                 content: postContent,
             }),
@@ -72,9 +87,9 @@ export default function CreatePost() {
                             <Article
                                 id={articleInfo.id}
                                 url={articleInfo.url}
-                                img={articleInfo.img}
+                                img={articleInfo.image_url}
                                 auth={articleInfo.author}
-                                date={articleInfo.publish_date}
+                                //date={articleInfo.publish_date}
                                 title={articleInfo.title}
                                 desc={articleInfo.description}
                             />

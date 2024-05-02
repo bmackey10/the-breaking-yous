@@ -26,8 +26,7 @@ export default function ForYou() {
                 console.error('Error fetching articles:', data.error);
             }
         });
-    });
-
+    }, []);
     // useEffect(() => {
     //     fetch('/for-you', {
     //         method: 'POST',
@@ -92,7 +91,7 @@ export default function ForYou() {
                                 url={article.url}
                                 img={article.image_url}
                                 auth={article.author}
-                                date={"04/09/2024"}
+                                date={"05/02/2024"}
                                 title={article.title}
                                 desc={article.description}
                                 type="for-you"
