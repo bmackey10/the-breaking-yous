@@ -15,8 +15,7 @@ export default function Community() {
         }).then((response) => {
             return response.json();
         }).then((current_user) => {
-            console.log(current_user);
-            setUser({...current_user});
+            setUser({ ...current_user });
         });
     };
 
@@ -25,7 +24,7 @@ export default function Community() {
         fetchPosts();
     }, []);
 
-  
+
 
     const fetchPosts = () => {
         fetch('/get-posts')
@@ -43,7 +42,7 @@ export default function Community() {
             });
     };
 
-  
+
 
     return (
         <div>

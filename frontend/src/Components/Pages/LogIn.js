@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-export default function LogIn() {
+export default function LogIn({ sendToParent }) {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -37,6 +37,7 @@ export default function LogIn() {
             }).then((response) => {
                 if (response.ok) {
                     console.log("User Logged In");
+                    sendToParent(true);
                     return response.json();
                 } else {
                     console.log(`HTTP Response Code: ${response?.status}`)

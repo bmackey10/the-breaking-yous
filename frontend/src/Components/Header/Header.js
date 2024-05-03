@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -7,6 +7,7 @@ import NewspaperIcon from "../../Images/newspaper.png";
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const navigate = useNavigate()
 
     useEffect(() => {
         fetch('/get_current_user', {
@@ -38,6 +39,7 @@ export default function Header() {
 
         setMobileMenuOpen(false);
         window.location.reload();
+        navigate("/");
     };
 
     return (

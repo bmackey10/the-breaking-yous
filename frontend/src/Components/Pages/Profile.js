@@ -45,7 +45,6 @@ export default function Profile() {
             }).then((response) => {
                 return response.json();
             }).then((profile_info) => {
-                console.log(profile_info)
                 setProfile({ ...profile_info });
             })
         })
@@ -84,7 +83,6 @@ export default function Profile() {
             }).then((response) => {
                 return response.json();
             }).then((user) => {
-                console.log(user)
                 setFoundUsers(user.users);
                 setNameInput("");
                 setUsernameInput("");
@@ -97,12 +95,36 @@ export default function Profile() {
         const index = new_profile.following.indexOf(e.target.value);
         delete new_profile.following.splice(index);
         setProfile({ ...new_profile })
+
+        fetch('/unfollow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data.message)
+        })
     };
 
     const handleFollow = (e) => {
         const new_profile = { ...profile }
         new_profile.following.push(parseInt(e.target.value))
         setProfile({ ...new_profile })
+
+        fetch('/follow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data.message)
+        })
     };
 
 
@@ -142,7 +164,7 @@ export default function Profile() {
                         </div>
                         <div>
                             <p className="font-bold text-gray-700 font-merriweather text-xl">
-                                {profile.following.length}
+                                {profile.following && profile.following.length}
                             </p>
                             <p className="text-gray-400 font-merriweather">
                                 Following
@@ -191,7 +213,7 @@ export default function Profile() {
                         Interests
                     </div>
                     <div className="flex flex-row flex-wrap justify-center gap-2 lg:px-16">
-                        {profile.interests.map((interest) => {
+                        {profile.interests && profile.interests.map((interest) => {
                             const interest_str = interest[0].toUpperCase() + interest.slice(1);
                             return (
                                 <div
@@ -221,7 +243,7 @@ export default function Profile() {
                     <div className="font-merriweather font-semibold text-theme-dark-red text-xl">Add a Friend</div>
                 </Modal.Header>
                 <Modal.Body>
-                    {foundUsers.length > 0 && (
+                    {foundUsers && foundUsers.length > 0 && (
                         <div className="grid grid-cols-1 divide-y divide-theme-navy-blue">
                             {foundUsers.map((user) => (
                                 <div key={user[0]} className="flex flex-row gap-4 p-2">
@@ -233,7 +255,7 @@ export default function Profile() {
                                             id={user[1]}
                                             onClick={handleUnfollow}
                                             value={user[0]}
-                                            className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-gray-400 hover:border-red-600 bg-white hover:bg-red-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
+                                            className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-green-600 bg-green-200 hover:border-red-600 hover:bg-red-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
                                         >   Following
                                             <CheckCircleIcon
                                                 className="inline h-8 w-8 p-1"
@@ -259,7 +281,7 @@ export default function Profile() {
                             ))}
                         </div>
                     )}
-                    {foundUsers.length == 0 && (
+                    {foundUsers && foundUsers.length == 0 && (
                         <div className="flex flex-col gap-4">
                             <form onSubmit={handleNameSubmit} className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                                 <div className="sm:col-span-2">
@@ -309,7 +331,7 @@ export default function Profile() {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    {foundUsers.length > 0 && (<button type="button" onClick={resetSearch} className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                    {foundUsers && foundUsers.length > 0 && (<button type="button" onClick={resetSearch} className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                         Reset Search
                     </button>)}
                 </Modal.Footer>

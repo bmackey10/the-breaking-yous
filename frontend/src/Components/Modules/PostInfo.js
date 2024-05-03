@@ -11,10 +11,9 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
     const { user_id } = curr_user;
 
 
-    
+
 
     useEffect(() => {
-        console.log(curr_user);
         let today = new Date();
         let articleDate = new Date(date);
 
@@ -33,7 +32,7 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
         }
     }, []);
 
-    
+
 
     const handleSubmitComment = (e) => {
         e.preventDefault();
