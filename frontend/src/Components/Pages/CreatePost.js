@@ -47,6 +47,8 @@ export default function CreatePost() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString(); 
         fetch("/create-post", {
             method: "POST",
             headers: {
@@ -56,6 +58,7 @@ export default function CreatePost() {
                 user_id: user.user_id,
                 article_id: parseInt(article_id),
                 content: postContent,
+                post_publish_date: formattedDate,
             }),
         })
             .then((response) => {

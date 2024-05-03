@@ -201,7 +201,7 @@ def get_profile():
         articles = [row[0] for row in cursor.fetchall()]
 
         # get interests data
-        cursor.execute("SELECT * FROM userinterests WHERE user_id = :user_id", {'user_id': user_id})
+        cursor.execute("SELECT * FROM userinterests WHERE user_id = :user_id and active = 1", {'user_id': user_id})
         interests = [row[2] for row in cursor.fetchall()]
 
         return jsonify({'user_id': user_id, 'first_name': first, 'last_name': last, "followers": followers, "following": following, "posts": posts, "articles": articles, "interests": interests})
@@ -257,6 +257,7 @@ def recommend_six_articles():
         sample_user = 1
 
 
+
         #GET TODAYS DATE
         date = datetime.now()
         date = str(date.strftime('%d-%b-%y')).upper()
@@ -275,7 +276,10 @@ def recommend_six_articles():
         num_userarticles = len(userarticles_rows)
 
 
-        if num_userarticles < 6:
+        load_more = request.args.get('load_more')
+
+        if num_userarticles < 6 or load_more:
+            print(load_more)
             recs = []
             while len(recs) < 6:
                 random.shuffle(topics)
@@ -295,11 +299,8 @@ def recommend_six_articles():
                         # Insert into userarticles
                         # insert_query = f"INSERT INTO userarticles(user_id, article_id, title, author, retrieved_date, news_source, api_source, url, image_url, description, topic, displayed) VALUES({sample_user}, {rec[0]}, '{rec[1]}', '{rec[2]}', TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), '{rec[5]}', '{rec[6]}', '{rec[7]}', '{rec[8]}', '{rec[9]}', '{rec[10]}', 1)"
 
-
-                        insert_query = f"INSERT INTO userarticles(user_id, article_id, retrieved_date, displayed) VALUES({sample_user}, {rec[0]}, TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), 1)"
-
-
-                        print(insert_query)
+                        insert_query = f"INSERT INTO userarticles(user_id, article_id, retrieved_date, displayed) VALUES({sample_user}, {rec[0]}, TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), 0)"
+                        
                         cursor.execute(insert_query)  
     
                     if len(recs) >= 6:
@@ -309,9 +310,13 @@ def recommend_six_articles():
 
 
         #NOW ONLY PULL 6 ARTICLES FROM USERARTICLES
-        userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description FROM userarticles u, articles a WHERE u.user_id = {sample_user} AND u.article_id = a.article_id ORDER BY u.retrieved_date DESC) WHERE ROWNUM <= 6"
+        if load_more:
+            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {sample_user} AND u.article_id = a.article_id AND u.displayed = 0 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id) where rownum <= 6"
+        else:
+            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {sample_user} AND u.article_id = a.article_id AND u.displayed = 1 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id)"
         cursor.execute(userarticles_query)
         results = cursor.fetchall()
+        print(results)
 
 
         article_data = []
@@ -321,12 +326,21 @@ def recommend_six_articles():
                         'article_id': result[0],
                         'title': result[1],
                         'author': result[2],
-                        'retrieved_date': result[3],
+                        'retrieved_date': result[3].strftime('%m/%d/%y'),
                         'url': result[4],
                         'image_url': result[5],
-                        'description': result[6]
+                        'description': result[6],
+                        'topic': result[7]
                     }
                     article_data.append(article_dict)
+
+                    # Update displayed column for fetched articles
+                    update_query = f"""
+                        UPDATE userarticles
+                        SET displayed = 1
+                        WHERE user_id = {sample_user} AND article_id = {result[0]}
+                    """
+                    cursor.execute(update_query)
         #print(article_data)
 
 
@@ -498,17 +512,22 @@ def handle_create_post():
       
             content = data.get('content')
             article_id = data.get('article_id')
+            current_date = data.get('post_publish_date')
             print(content)
             print(article_id)
+            print(current_date)
             #validation
             #user_id=21
             user_id = data.get('user_id')
     
             print(user_id)
-            current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print('hello')
+            #before_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+           # print(before_date)
+            print("AHHHHHHHHHH")
 
-            cursor.execute("INSERT INTO POSTS (USER_ID, ARTICLE_ID, CONTENT, PUBLISH_DATE) VALUES (:user_id, :article_id, :content)", {'user_id': user_id, 'article_id': article_id, 'content': content,'publish_date': current_date})
-            oracle_connection.commit()
+            #cursor.execute("INSERT INTO POSTS (USER_ID, ARTICLE_ID, CONTENT, PUBLISH_DATE) VALUES (:user_id, :article_id, :content)", {'user_id': user_id, 'article_id': article_id, 'content': content,'publish_date': current_date})
+           # oracle_connection.commit()
 
             return jsonify({'success': True, 'message': 'Post created successfully'})
 
@@ -570,65 +589,97 @@ def get_comments():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/unfollow', methods=['POST'])
+def unfollow():
+    try:
+        data = request.json
+        follower_str = data.get('follower')
+        following_str = data.get('following')
+
+        cursor.execute("UPDATE followers SET active = 0 WHERE follower_user_id = :follower AND followed_user_id = :following", {'follower': follower_str, 'following': following_str})
+        oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'User unfollowed'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/follow', methods=['POST'])
+def follow():
+    try:
+        data = request.json
+        follower_str = data.get('follower')
+        following_str = data.get('following')
+
+        cursor.execute("SELECT * FROM followers WHERE follower_user_id = :follower AND followed_user_id = :following", {'follower': follower_str, 'following': following_str})
+        follow_data = cursor.fetchone()
+
+        if follow_data:
+            cursor.execute("UPDATE followers SET active = 1 WHERE follower_user_id = :follower AND followed_user_id = :following", {'follower': follower_str, 'following': following_str})
+            oracle_connection.commit()
+        else:
+            cursor.execute("INSERT INTO followers (follower_user_id, followed_user_id, active) VALUES (:follower, :following, 1)", {'follower': follower_str, 'following': following_str})
+            oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'User followed'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 
+@app.route('/get_user_interests', methods=['POST'])
+def get_user_interests():
+    try:
+        data = request.json
+        user_str = data.get('user')
 
+        cursor.execute("SELECT topic FROM userinterests WHERE user_id = :user_id AND active = 1", {'user_id': user_str})
+        follow_data = [row[0] for row in cursor.fetchall()]
 
+        return jsonify({'success': True, 'interests': follow_data})
 
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/remove_interest', methods=['POST'])
+def remove_interest():
+    try:
+        data = request.json
+        user_str = data.get('user')
+        topic_str = data.get('topic')
+
+        cursor.execute("UPDATE userinterests SET active = 0 WHERE user_id = :user_id AND topic = :topic", {'user_id': user_str, 'topic': topic_str})
+        oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'Interest removed'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/add_interest', methods=['POST'])
+def add_interest():
+    try:
+        data = request.json
+        user_str = data.get('user')
+        topic_str = data.get('topic')
+
+        print(user_str, file=sys.stderr)
+        print(topic_str, file=sys.stderr)
+
+        cursor.execute("SELECT * FROM userinterests WHERE user_id = :user_id AND topic = :topic", {'user_id': user_str, 'topic': topic_str})
+        interest_data = cursor.fetchone()
+
+        if interest_data:
+            cursor.execute("UPDATE userinterests SET active = 1 WHERE user_id = :user_id AND topic = :topic", {'user_id': user_str, 'topic': topic_str})
+            oracle_connection.commit()
+        else:
+            cursor.execute("INSERT INTO userinterests (user_id, topic, active) VALUES (:user_id, :topic, 1)", {'user_id': user_str, 'topic': topic_str})
+            oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'Interest added'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
 if __name__ == '__main__':
    app.run(debug=True, host='0.0.0.0', port=5000)
-
-# {/* <form onSubmit={handleNameSubmit} className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-#                            <div className="sm:col-span-2">
-#                                <div className="font-merriweather font-base text-theme-dark-red">Search by name...</div>
-#                                <div className="flex flex-grow rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-theme-dark-red sm:max-w-md">
-#                                    <input
-#                                        type="text"
-#                                        name="name"
-#                                        id="name"
-#                                        autoComplete="name"
-#                                        className="block pl-3 w-full flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
-#                                        placeholder="First Last"
-#                                        onChange={handleNameChange}
-#                                        value={nameInput}
-#                                    />
-#                                </div>
-#                            </div>
-#                            <div className="grid sm:col-span-1 content-end justify-center">
-#                                <button type="submit" className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
-#                                    Search
-#                                </button>
-#                            </div>
-#                        </form> */}
-#                        {/* <form onSubmit={handleUsernameSubmit} className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-#                            <div className="sm:col-span-2">
-#                                <div className="font-merriweather font-base text-theme-dark-red">Search by username...</div>
-#                                <div className="flex flex-grow rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-theme-dark-red sm:max-w-md">
-#                                    <input
-#                                        type="text"
-#                                        name="username"
-#                                        id="username"
-#                                        autoComplete="Username"
-#                                        className="block pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
-#                                        placeholder="username"
-#                                        onChange={handleUsernameChange}
-#                                        value={usernameInput}
-#                                    />
-#                                </div>
-#                            </div>
-#                            <div className="grid sm:col-span-1 content-end justify-center">
-#                                <button type="submit" className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
-#                                    Search
-#                                </button>
-#                            </div>
-#                        </form> */}
-
-# {foundUsers ? (
-#                         <div className="grid grid-flow-row">
-#                             {foundUsers.map((user) => (<div></div>))}
-#                         <div>
-#                     ) : (
-#                     <div className="flex flex-col gap-4">
-                       
-#                    </div>
-#                    )}
