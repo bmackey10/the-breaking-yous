@@ -3,18 +3,17 @@ import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function LogIn({ sendToParent }) {
+    const navigate = useNavigate();
+    const [showPass, setShowPass] = useState(1);
+    const [passError, setPassError] = useState({ "error": false, "errorMessage": "" });
+    const [userError, setUserError] = useState({ "error": false, "errorMessage": "" });
     const [formData, setFormData] = useState({
         username: "",
         password: "",
     });
-    const [showPass, setShowPass] = useState(1);
-    const [passError, setPassError] = useState({ "error": false, "errorMessage": "" });
-    const [userError, setUserError] = useState({ "error": false, "errorMessage": "" });
-    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
 
         if (formData.username == "" || formData.password == "") {
             if (formData.username == "") {
@@ -44,22 +43,12 @@ export default function LogIn({ sendToParent }) {
                     console.log(`HTTP Response Code: ${response?.status}`)
                     setPassError({ ...passError, "error": true, "errorMessage": "Incorrect username or password." });
                     setUserError({ ...userError, "error": false, "errorMessage": "" });
-                    return "error";
+                    throw new Error('Server returned ' + response?.status);
                 }
-            }).then((data) => {
-                if (data != "error") {
-                    fetch('/get_current_user', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }).then((response) => {
-                        return response.json();
-                    });
-                    setPassError({ ...passError, "error": false, "errorMessage": "" });
-                    setUserError({ ...userError, "error": false, "errorMessage": "" });
-                    navigate("/");
-                }
+            }).then(() => {
+                setPassError({ ...passError, "error": false, "errorMessage": "" });
+                setUserError({ ...userError, "error": false, "errorMessage": "" });
+                navigate("/");
             });
         } catch (error) {
             console.error('Error:', error);

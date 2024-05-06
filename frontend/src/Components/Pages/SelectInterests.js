@@ -60,13 +60,14 @@ export default function SelectInterests() {
         } catch (error) {
             console.error('Error:', error);
         }
+        // eslint-disable-next-line
     }, [username]);
 
     const handleRemoveInterestClick = (e) => {
         if (e.target.id.length > 0) {
             setInterestsObj((interestsObj) => ({
                 ...interestsObj,
-                [e.target.id == "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 0,
+                [e.target.id === "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 0,
             }));
 
             try {
@@ -75,7 +76,7 @@ export default function SelectInterests() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
+                    body: JSON.stringify({ user: currUser, topic: (e.target.id === "US" ? e.target.id : e.target.id.toLowerCase()) })
                 }).then((response) => {
                     if (response?.ok) {
                         return response.json();
@@ -96,7 +97,7 @@ export default function SelectInterests() {
         if (e.target.id.length > 0) {
             setInterestsObj((interestsObj) => ({
                 ...interestsObj,
-                [e.target.id == "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 1,
+                [e.target.id === "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 1,
             }));
 
             try {
@@ -105,7 +106,7 @@ export default function SelectInterests() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
+                    body: JSON.stringify({ user: currUser, topic: (e.target.id === "US" ? e.target.id : e.target.id.toLowerCase()) })
                 }).then((response) => {
                     if (response?.ok) {
                         return response.json();

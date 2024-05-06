@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Register() {
+export default function Register({ sendToParent }) {
+    const navigate = useNavigate();
     const [passError, setPassError] = useState({ "error": false, "errorMessage": "" });
     const [userError, setUserError] = useState({ "error": false, "errorMessage": "" });
     const [firstError, setFirstError] = useState({ "error": false, "errorMessage": "" });
@@ -31,8 +33,8 @@ export default function Register() {
             }).then((response) => {
                 return response.json();
             }).then((users) => {
-                setExistUser([...users.usernames]);
-                setExistEmail([...users.emails]);
+                setExistUser([...users?.usernames]);
+                setExistEmail([...users?.emails]);
             })
         } catch (error) {
             console.error('Error:', error);
@@ -171,6 +173,24 @@ export default function Register() {
                 setBirthError({ ...birthError, "error": false, "errorMessage": "" });
                 setPhoneError({ ...phoneError, "error": false, "errorMessage": "" });
                 setEmailError({ ...emailError, "error": false, "errorMessage": "" });
+                fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: formData.username, password: formData.password })
+                }).then((response) => {
+                    if (response.ok) {
+                        console.log("User Logged In");
+                        sendToParent(true);
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then(() => {
+                    navigate("/");
+                });
             });
         } catch (error) {
             console.error('Error:', error);

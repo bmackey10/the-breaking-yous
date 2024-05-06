@@ -6,16 +6,25 @@ export default function Home() {
 
     useEffect(() => {
 
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((current_user) => {
-            setIsLoggedIn(current_user.authenticated);
-        })
+        try {
+            fetch('/get_current_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((current_user) => {
+                setIsLoggedIn(current_user.authenticated);
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
 
     });
 
