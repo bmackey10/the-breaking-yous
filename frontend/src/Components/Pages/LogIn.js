@@ -15,6 +15,7 @@ export default function LogIn({ sendToParent }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+
         if (formData.username == "" || formData.password == "") {
             if (formData.username == "") {
                 setUserError({ ...userError, "error": true, "errorMessage": "Please enter your username." });
@@ -73,7 +74,7 @@ export default function LogIn({ sendToParent }) {
     };
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
     };
 
     const handleClickShowPass = () => {
