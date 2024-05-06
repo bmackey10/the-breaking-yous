@@ -7,11 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta, datetime
 import random
 
-sys.path.append("sqlcommands/commands")
-# from algorithm import simulate_recommendation_algorithm as user_recs
-#from werkzeug.security import generate_password_hash
-
-
+# sys.path.append('../../sqlcommands/commands')
+# from apitoSQL import add_topic_to_database as fetcharticles
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@172.22.134.159:1521/XE"
@@ -80,10 +77,46 @@ def index():
 def loader_user(user_id):
    return Users.query.get(user_id)
 
+# Define route to check database connection
+@app.route('/check_db_connection')
+def check_db_connection():
+    try:
+        # Establish Oracle connection
+        connection = cx_Oracle.connect('guest', 'guest', '172.22.134.159:1521/XE')
+
+        # Check if connection is successful
+        if connection:
+            return jsonify({'success': True, 'message': 'Database connection is working'})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to establish database connection'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 # THIS ONE WORKS
 @app.route('/login', methods=['POST'])
 def login():
+
+    # #GET TODAYS DATE
+    # date = datetime.now()
+    # date = str(date.strftime('%d-%b-%y')).upper()
+
+    # #check to see if articles need to be fetched
+    # check_articles = f"select article_id from articles where to_date(retrieved_date, 'DD-MON-YY') = {date}"
+    # cursor.execute(check_articles)
+    # todays_articles = cursor.fetchall()
+    # if len(todays_articles) == 0:
+    #     fetcharticles("arts")
+    #     fetcharticles("business")
+    #     fetcharticles("health")
+    #     fetcharticles("technology")
+    #     fetcharticles("world")
+    #     fetcharticles("sports")
+    #     fetcharticles("food")
+    #     fetcharticles("politics")
+    #     fetcharticles("travel")
+    #     fetcharticles("tourism")
+    #     fetcharticles("us")
+    #     fetcharticles("entertainment")
 
     data = request.json
     user_str = data.get('username')
@@ -144,9 +177,6 @@ def register_user():
         phoneNumber = data.get('phoneNumber')
         email = data.get('email')
         country = data.get('country')
-        # Perform validation if needed
-        if not username or not password or not firstName or not lastName or not birthDate or not phoneNumber or not email or not country:
-            return jsonify({'success': False, 'error': 'All fields are required'}), 400
 
         # Hash the password
         #hashed_password = generate_password_hash(password)
@@ -254,8 +284,9 @@ def recommend_six_articles():
     try:
         
         #REPLACE THIS LINE WITH A REAL USER
-        sample_user = 1
-
+        data = request.json
+        print(data)
+        user_id = data.get('user_id')
 
 
         #GET TODAYS DATE
@@ -264,13 +295,17 @@ def recommend_six_articles():
 
 
         #GET USER INTERESTS
-        topics_query = f"SELECT topic from userinterests where user_id = {sample_user}"
+        topics_query = f"SELECT topic from userinterests where user_id = {user_id} and active = 1"
         cursor.execute(topics_query)
         topics = [row[0] for row in cursor.fetchall()]
 
+        if len(topics) == 0:
+            print("THERE ARE NO TOPICS LISTED")
+            topics = ['arts', 'business', 'health', 'technology', 'world', 'sports', 'food', 'lifestyle', 'politics', 'travel', 'tourism', 'us', 'entertainment']
+
 
         #TEST TO SEE IF USERARTICLES POPULATED
-        check_userarticles_query = f"SELECT * from userarticles where user_id = {sample_user} and TO_CHAR(retrieved_date, 'DD-MON-YY') = '{date}'"
+        check_userarticles_query = f"SELECT * from userarticles where user_id = {user_id} and TO_CHAR(retrieved_date, 'DD-MON-YY') = '{date}'"
         cursor.execute(check_userarticles_query)
         userarticles_rows = cursor.fetchall()
         num_userarticles = len(userarticles_rows)
@@ -279,13 +314,13 @@ def recommend_six_articles():
         load_more = request.args.get('load_more')
 
         if num_userarticles < 6 or load_more:
-            print(load_more)
+            
             recs = []
             while len(recs) < 6:
                 random.shuffle(topics)
                 for topic in topics:
                     #get a random article for the current topic
-                    get_rec_query = f"SELECT * FROM (SELECT * FROM articles a LEFT JOIN userarticles u ON a.article_id = u.article_id AND u.user_id = {sample_user} WHERE a.topic = '{topic}' AND u.article_id IS NULL AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM <= 1"
+                    get_rec_query = f"SELECT * FROM (SELECT * FROM articles a LEFT JOIN userarticles u ON a.article_id = u.article_id AND u.user_id = {user_id} WHERE a.topic = '{topic}' AND u.article_id IS NULL AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM <= 1"
                     cursor.execute(get_rec_query)
                     rec = cursor.fetchone()
                     if rec is not None:
@@ -294,34 +329,47 @@ def recommend_six_articles():
 
                         retrieved_date_str = rec[4].strftime('%Y-%m-%d %H:%M:%S') if rec[4] else None
 
-
-                        #article_id = result[0]
-                        # Insert into userarticles
-                        # insert_query = f"INSERT INTO userarticles(user_id, article_id, title, author, retrieved_date, news_source, api_source, url, image_url, description, topic, displayed) VALUES({sample_user}, {rec[0]}, '{rec[1]}', '{rec[2]}', TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), '{rec[5]}', '{rec[6]}', '{rec[7]}', '{rec[8]}', '{rec[9]}', '{rec[10]}', 1)"
-
-                        insert_query = f"INSERT INTO userarticles(user_id, article_id, retrieved_date, displayed) VALUES({sample_user}, {rec[0]}, TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), 0)"
+                        insert_query = f"INSERT INTO userarticles(user_id, article_id, retrieved_date, displayed) VALUES({user_id}, {rec[0]}, TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), 0)"
                         
                         cursor.execute(insert_query)  
     
                     if len(recs) >= 6:
                         break
             recs = recs[:6]
-            print(recs)
 
+        #CHECK TO SEE IF ARTICLES HAVE ALREADY BEEN DISPLAYED
+        flag_query = f"SELECT * from userarticles WHERE user_id = {user_id} AND TO_DATE(retrieved_date, 'DD-MON-YY') = '{date}' AND displayed = 1"
+        cursor.execute(flag_query)
+        flag_count = len(cursor.fetchall())
 
         #NOW ONLY PULL 6 ARTICLES FROM USERARTICLES
-        if load_more:
-            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {sample_user} AND u.article_id = a.article_id AND u.displayed = 0 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id) where rownum <= 6"
+        if load_more or flag_count == 0:
+            print("FIRST CASE")
+            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {user_id} AND u.article_id = a.article_id AND u.displayed = 0 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id) where rownum <= 6"
         else:
-            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {sample_user} AND u.article_id = a.article_id AND u.displayed = 1 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id)"
+            print("ELSE CASE")
+            userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {user_id} AND u.article_id = a.article_id AND u.displayed = 1 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id)"
+            print(userarticles_query)
         cursor.execute(userarticles_query)
         results = cursor.fetchall()
-        print(results)
 
 
         article_data = []
         if results:
             for result in results:
+
+                    check_query = f"""
+                        SELECT active FROM savedarticles
+                        WHERE user_id = {user_id} AND article_id = {result[0]}
+                    """
+                    cursor.execute(check_query)
+
+                    check = cursor.fetchone()
+                    if check is not None:
+                        favorited = check[0]
+                    else:
+                        favorited = 0
+
                     article_dict = {
                         'article_id': result[0],
                         'title': result[1],
@@ -330,7 +378,8 @@ def recommend_six_articles():
                         'url': result[4],
                         'image_url': result[5],
                         'description': result[6],
-                        'topic': result[7]
+                        'topic': result[7],
+                        'favorited': favorited
                     }
                     article_data.append(article_dict)
 
@@ -338,10 +387,9 @@ def recommend_six_articles():
                     update_query = f"""
                         UPDATE userarticles
                         SET displayed = 1
-                        WHERE user_id = {sample_user} AND article_id = {result[0]}
+                        WHERE user_id = {user_id} AND article_id = {result[0]}
                     """
                     cursor.execute(update_query)
-        #print(article_data)
 
 
         oracle_connection.commit()
@@ -351,6 +399,59 @@ def recommend_six_articles():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/mark-as-favorite', methods=['POST'])
+def mark_as_favorite():
+    try:
+        data = request.json
+        user_id = data.get('user_id')
+        article_id = data.get('article_id')
+
+        # Check if the record already exists in the database
+        check_query = f"""
+            SELECT active FROM savedarticles
+            WHERE user_id = {user_id} AND article_id = {article_id}
+        """
+        cursor.execute(check_query)
+
+        result = cursor.fetchone()
+        if result is not None:
+            active = result[0]
+        else:
+            active = -1
+        
+        
+        #if article has been unstarred
+        if active == 0:
+            # If the record exists, update the 'displayed' column
+            update_query = f"""
+                UPDATE savedarticles
+                SET active = 1
+                WHERE user_id = {user_id} AND article_id = {article_id}
+            """
+            cursor.execute(update_query)
+        #if article has not been touched yet
+        elif active == -1:
+            insert_query = f"""
+                INSERT INTO savedarticles (user_id, article_id, active)
+                VALUES ({user_id}, {article_id}, 1)
+            """
+            cursor.execute(insert_query)
+        elif active == 1:
+            update_query = f"""
+                UPDATE savedarticles
+                SET active = 0
+                WHERE user_id = {user_id} AND article_id = {article_id}
+            """
+            cursor.execute(update_query)
+
+    
+        return jsonify({'success': True}), 200
+
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
     
 
 @app.route('/get-posts')
@@ -385,6 +486,7 @@ def get_posts():
         posts_data = []
         current_post_id = None
         for row in rows:
+            print(row)
             post_id = row[0]
             if post_id != current_post_id:
                 post_data = {
@@ -412,7 +514,6 @@ def get_posts():
                     'DATE': row[13],
                     'USERNAME': row[14]
                 })
-
         return jsonify(posts_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -507,54 +608,63 @@ def handle_create_post():
             return jsonify({'error': str(e)}), 500
     elif request.method == 'POST':
         try:
-            print(request.data)
             data = request.json
-      
+            print("Received data:", data)
             content = data.get('content')
             article_id = data.get('article_id')
             current_date = data.get('post_publish_date')
-            print(content)
-            print(article_id)
-            print(current_date)
-            #validation
-            #user_id=21
             user_id = data.get('user_id')
-    
-            print(user_id)
-            print('hello')
-            #before_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-           # print(before_date)
-            print("AHHHHHHHHHH")
 
-            #cursor.execute("INSERT INTO POSTS (USER_ID, ARTICLE_ID, CONTENT, PUBLISH_DATE) VALUES (:user_id, :article_id, :content)", {'user_id': user_id, 'article_id': article_id, 'content': content,'publish_date': current_date})
-           # oracle_connection.commit()
+            # Convert the date string to a datetime object
+            date_obj = datetime.strptime(current_date, '%Y-%m-%dT%H:%M:%S.%fZ')
 
+            # Convert the datetime object back to a string in the desired format
+            formatted_date = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+            print("Content:", content)
+            print("Article ID:", article_id)
+            print("Current Date:", date_obj)
+            print("User ID:", user_id)
+
+            cursor.execute("INSERT INTO POSTS (USER_ID, ARTICLE_ID, CONTENT, PUBLISH_DATE) VALUES (:user_id, :article_id, :content, :publish_date)", {'user_id': user_id, 'article_id': article_id, 'content': content, 'publish_date': date_obj})
+            oracle_connection.commit()
+            
+            print('Post created successfully')
             return jsonify({'success': True, 'message': 'Post created successfully'})
 
         except Exception as e:
+            print("Error:", e)
             return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/submit-comment', methods=['POST'])
 def submit_comment():
     try:
         data = request.json
-  
 
+        print('hello???')
         # Extract postId and content from the request data
         postId = data.get('postId')
         content = data.get('content')
-        current_user_id = data['user_id']
+        current_user_id = data.get('user_id')
+        print(current_user_id)
+        date_commented = data.get('comment_publish_date')
+
+        # Convert the date string to a datetime object
+        date_obj = datetime.strptime(date_commented, '%Y-%m-%dT%H:%M:%S.%fZ')
+
+        # Convert the datetime object back to a string in the desired format
+        formatted_date = date_obj.strftime('%Y-%m-%d %H:%M:%S')
         
         print(current_user_id)
         # Insert the comment into the database
-        cursor.execute("INSERT INTO COMMENTS (USER_ID, POST_ID, CONTENT) VALUES (:user_id, :post_id, :content)", {'user_id': current_user_id, 'post_id': postId, 'content': content})
+        cursor.execute("INSERT INTO COMMENTS (USER_ID, POST_ID, CONTENT, DATE_COMMENTED) VALUES (:user_id, :post_id, :content, :date_commented)", {'user_id': current_user_id, 'post_id': postId, 'content': content, 'date_commented': date_obj})
         oracle_connection.commit()
 
         return jsonify({'success': True, 'message': 'Comment submitted successfully'})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-    
+
 
 @app.route('/get-comments', methods=['GET'])
 def get_comments():
@@ -663,9 +773,6 @@ def add_interest():
         user_str = data.get('user')
         topic_str = data.get('topic')
 
-        print(user_str, file=sys.stderr)
-        print(topic_str, file=sys.stderr)
-
         cursor.execute("SELECT * FROM userinterests WHERE user_id = :user_id AND topic = :topic", {'user_id': user_str, 'topic': topic_str})
         interest_data = cursor.fetchone()
 
@@ -678,6 +785,21 @@ def add_interest():
 
         return jsonify({'success': True, 'message': 'Interest added'})
     
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/existing_users', methods=['POST'])
+def existing_users():
+    try:
+
+        cursor.execute("SELECT username, email FROM users")
+        user_data = [[row[0], row[1]] for row in cursor.fetchall()]
+
+        usernames = [x[0] for x in user_data]
+        emails = [x[1] for x in user_data]
+
+        return jsonify({'success': True, 'usernames': usernames, 'emails': emails})
+
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
     

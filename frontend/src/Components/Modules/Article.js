@@ -4,7 +4,17 @@ import {
     StarIcon,
 } from "@heroicons/react/24/outline";
 
-const Article = ({ id, url, img, auth, date, title, desc }) => {
+const Article = ({ id, url, img, auth, date, title, desc, favorited, onAddToFavorites }) => {
+
+    const [isFavorite, setIsFavorite] = useState(favorited);
+
+    const handleToggleFavorite = (event) => {
+        event.preventDefault(); 
+        setIsFavorite(!isFavorite);
+        // Invoke the callback function to add or remove the article from favorites
+        onAddToFavorites(id);
+    };
+  
 
     return (
         <Link
@@ -16,7 +26,11 @@ const Article = ({ id, url, img, auth, date, title, desc }) => {
                 <img src={img} className="w-full rounded-lg" alt="article" />
                 <div className="pt-4">
                     <div className="flex flex-row flex-wrap text-sm font-merriweather items-center gap-2">
-                        <StarIcon className="h-8 w-8 stroke-black hover:fill-theme-star-yellow hover:stroke-theme-star-yellow" aria-hidden="true" />
+                        <StarIcon 
+                            className={`h-8 w-8 stroke-black ${isFavorite ? 'fill-theme-star-yellow' : ''}`} 
+                            aria-hidden="true" 
+                            onClick={handleToggleFavorite}
+                        />
                         <div className="text-theme-dark-red">{auth}</div>
                         <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
                         <div className="font-light">{date}</div>

@@ -8,10 +8,8 @@ import {
 const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) => {
     const [displayDiff, setDisplayDiff] = useState("");
     const [newComment, setNewComment] = useState("");
+    const [postComments, setPostComments] = useState(comments); // State variable to store comments
     const { user_id } = curr_user;
-
-
-
 
     useEffect(() => {
         let today = new Date();
@@ -32,33 +30,42 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
         }
     }, []);
 
-
-
     const handleSubmitComment = (e) => {
         e.preventDefault();
-        // Send a request to your backend API to submit the comment
-        fetch("/submit-comment", {
-            method: "POST",
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString(); 
+        console.log(formattedDate);
+
+        fetch('/submit-comment', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 postId: postId,
                 content: newComment,
-                user_id: user_id
+                user_id: user_id,
+                comment_publish_date: formattedDate
             }),
         })
-            .then((response) => {
-                if (response.ok) {
-                    // Clear the comment textbox after successful submission
-                    setNewComment("");
-                } else {
-                    throw new Error(`HTTP Response Code: ${response.status}`);
-                }
-            })
-            .catch((error) => {
-                console.error("Error submitting comment:", error);
-            });
+        .then((response) => {
+            if (response.ok) {
+                // Update comments state with the new comment
+                setPostComments([...postComments, { 
+                    COMMENT_ID: new Date().getTime(), // Generate a unique ID for the comment
+                    USERNAME: curr_user.username, // Assuming you have the current user's name
+                    CONTENT: newComment,
+                    USER_ID: user_id // Assuming you have the current user's ID
+                }]);
+                // Clear the comment textbox after successful submission
+                setNewComment("");
+            } else {
+                throw new Error(`HTTP Response Code: ${response.status}`);
+            }
+        })
+        .catch((error) => {
+            console.error("Error submitting comment:", error);
+        });
     };
 
     return (
@@ -106,16 +113,19 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
                 </button>
             </div>
             {/* Display Comments */}
-            {comments.map((comment) => (
-                <div key={comment.COMMENT_ID} className="relative text-sm font-merriweather">
-                    <Link to={"/profile/" + comment.USER_ID}>
-                        <div className="inline font-semibold text-theme-dark-red pr-2">
-                            {comment.USERNAME}
-                        </div>
-                    </Link>
-                    {comment.CONTENT}
-                </div>
-            ))}
+            {postComments
+  .sort((a, b) => new Date(a.DATE) - new Date(b.DATE)) // Sort comments by date
+  .map((comment) => (
+    <div key={comment.COMMENT_ID} className="relative text-sm font-merriweather">
+      <Link to={"/profile/" + comment.USER_ID}>
+        <div className="inline font-semibold text-theme-dark-red pr-2">
+          {comment.USERNAME}
+        </div>
+      </Link>
+      {comment.CONTENT}
+    </div>
+  ))}
+
         </div>
     );
 };
