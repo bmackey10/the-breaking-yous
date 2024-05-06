@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-    HeartIcon,
-    ChatBubbleBottomCenterIcon as ChatBubble,
-} from "@heroicons/react/24/outline";
+import { HeartIcon } from "@heroicons/react/24/outline";
 
 const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) => {
     const [displayDiff, setDisplayDiff] = useState("");
     const [newComment, setNewComment] = useState("");
     const [postComments, setPostComments] = useState(comments); // State variable to store comments
+    const [isLiked, setIsLiked] = useState(likes.reduce((accum, currVal) => currVal.USER_ID === curr_user.user_id ? true : accum, false));
     const { user_id } = curr_user;
 
     useEffect(() => {
@@ -33,8 +31,7 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
     const handleSubmitComment = (e) => {
         e.preventDefault();
         const currentDate = new Date();
-        const formattedDate = currentDate.toISOString(); 
-        console.log(formattedDate);
+        const formattedDate = currentDate.toISOString();
 
         fetch('/submit-comment', {
             method: 'POST',
@@ -48,31 +45,88 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
                 comment_publish_date: formattedDate
             }),
         })
-        .then((response) => {
-            if (response.ok) {
-                // Update comments state with the new comment
-                setPostComments([...postComments, { 
-                    COMMENT_ID: new Date().getTime(), // Generate a unique ID for the comment
-                    USERNAME: curr_user.username, // Assuming you have the current user's name
-                    CONTENT: newComment,
-                    USER_ID: user_id // Assuming you have the current user's ID
-                }]);
-                // Clear the comment textbox after successful submission
-                setNewComment("");
-            } else {
-                throw new Error(`HTTP Response Code: ${response.status}`);
-            }
-        })
-        .catch((error) => {
-            console.error("Error submitting comment:", error);
-        });
+            .then((response) => {
+                if (response.ok) {
+                    // Update comments state with the new comment
+                    setPostComments([...postComments, {
+                        COMMENT_ID: new Date().getTime(), // Generate a unique ID for the comment
+                        USERNAME: curr_user.username, // Assuming you have the current user's name
+                        CONTENT: newComment,
+                        USER_ID: user_id // Assuming you have the current user's ID
+                    }]);
+                    // Clear the comment textbox after successful submission
+                    setNewComment("");
+                } else {
+                    throw new Error(`HTTP Response Code: ${response.status}`);
+                }
+            })
+            .catch((error) => {
+                console.error("Error submitting comment:", error);
+            });
+    };
+
+    const handleUnlike = () => {
+        try {
+            fetch('/unlike_post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user: user_id, post: postId })
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((data) => {
+                console.log(data.message)
+                setIsLiked(false)
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleLike = () => {
+        try {
+            fetch('/like_post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user: user_id, post: postId })
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((data) => {
+                console.log(data.message)
+                setIsLiked(true)
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
         <div className="order-last sm:order-first">
             <div className="relative font-merriweather text-lg">
+                {isLiked ? (<HeartIcon
+                    className="inline h-8 w-8  fill-theme-dark-red stroke-theme-dark-red"
+                    aria-hidden="true"
+                    onClick={handleUnlike}
+                />) : (<HeartIcon
+                    className="inline h-8 w-8 stroke-black hover:fill-theme-dark-red hover:stroke-theme-dark-red"
+                    aria-hidden="true"
+                    onClick={handleLike}
+                />)}
                 <Link to={"/profile/" + user}>
-                    <div className="inline font-semibold  text-theme-dark-red pr-1">
+                    <div className="inline font-semibold text-theme-dark-red px-1">
                         {user}
                     </div>
                 </Link>
@@ -81,23 +135,12 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
                 </div>
                 {content}
             </div>
-            <div className="flex flex-row flex-wrap text-sm font-merriweather items-center py-1 gap-2">
+            <div className="flex flex-row flex-wrap text-sm font-merriweather items-center py-2 gap-2">
                 <div className="font-light">{likes.length} likes</div>
                 <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
                 <div className="font-light">{comments.length} comments</div>
             </div>
-            <div className="flex flex-row py-2 gap-2">
-                <HeartIcon
-                    className="h-8 w-8 stroke-black hover:fill-theme-dark-red hover:stroke-theme-dark-red"
-                    aria-hidden="true"
-                />
-                <ChatBubble
-                    className="h-8 w-8 stroke-black hover:fill-theme-pale-blue hover:stroke-theme-pale-blue"
-                    aria-hidden="true"
-                />
-            </div>
-            {/* Comment Input */}
-            <div className="relative flex items-center">
+            <div className="relative flex items-center pb-4">
                 <input
                     type="text"
                     className="border rounded-lg w-full px-3 py-2 mr-2 focus:outline-none focus:ring focus:border-theme-dark-red"
@@ -112,20 +155,18 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
                     Post
                 </button>
             </div>
-            {/* Display Comments */}
-            {postComments
-  .sort((a, b) => new Date(a.DATE) - new Date(b.DATE)) // Sort comments by date
-  .map((comment) => (
-    <div key={comment.COMMENT_ID} className="relative text-sm font-merriweather">
-      <Link to={"/profile/" + comment.USER_ID}>
-        <div className="inline font-semibold text-theme-dark-red pr-2">
-          {comment.USERNAME}
-        </div>
-      </Link>
-      {comment.CONTENT}
-    </div>
-  ))}
-
+            <div className="flex flex-col gap-1">{postComments
+                .sort((a, b) => new Date(a.DATE) - new Date(b.DATE)) // Sort comments by date
+                .map((comment) => (
+                    <div key={comment?.COMMENT_ID} className="relative text-sm font-merriweather">
+                        <Link to={"/profile/" + comment.USER_ID}>
+                            <div className="inline font-semibold text-theme-dark-red pr-2">
+                                {comment.USERNAME}
+                            </div>
+                        </Link>
+                        {comment.CONTENT}
+                    </div>
+                ))}</div>
         </div>
     );
 };

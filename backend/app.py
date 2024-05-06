@@ -75,21 +75,6 @@ def index():
 def loader_user(user_id):
    return Users.query.get(user_id)
 
-# Define route to check database connection
-@app.route('/check_db_connection')
-def check_db_connection():
-    try:
-        # Establish Oracle connection
-        connection = cx_Oracle.connect('guest', 'guest', '172.22.134.159:1521/XE')
-
-        # Check if connection is successful
-        if connection:
-            return jsonify({'success': True, 'message': 'Database connection is working'})
-        else:
-            return jsonify({'success': False, 'message': 'Failed to establish database connection'})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
 # THIS ONE WORKS
 @app.route('/login', methods=['POST'])
 def login():
@@ -122,12 +107,10 @@ def login():
 
     if request.method == "POST":
         user = Users.query.filter_by(username=user_str).first()
-        print(user, file=sys.stderr)
 
         if user.password == pass_str:
             login_user(user, remember=True)
             session['username'] = user_str
-            print('Logged in successfully.', file=sys.stderr)
 
 
     try:
@@ -188,9 +171,7 @@ def register_user():
             query = "INSERT INTO users (username, password, first_name, last_name, birth_date, phone_number, email, country) VALUES (:username, :password, :first_name, :last_name, TO_DATE(:birth_date, 'DD-MON-YY'), :phone_number, :email, :country)"
             cursor.execute(query, {'username': username, 'password': password, 'first_name': firstName, 'last_name': lastName, 'birth_date': birthDate_formatted, 'phone_number': phoneNumber, 'email': email, 'country': country})
             oracle_connection.commit()
-            print("User inserted successfully.")
         except Exception as e:
-            print("Error occurred while inserting user:", e)
             oracle_connection.rollback()  # Rollback the transaction in case of error
 
         return jsonify({'success': True, 'message': 'User registered successfully'})
@@ -226,8 +207,8 @@ def get_profile():
         posts = posts_data[0]
 
         # get saved articles data
-        cursor.execute("SELECT * FROM savedarticles WHERE user_id = :user_id", {'user_id': user_id})
-        articles = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT a.article_id, a.title, a.author, a.publish_date, a.url, a.image_url, a.description, a.topic FROM savedarticles s LEFT JOIN articles a ON s.article_id = a.article_id WHERE s.user_id = :user_id and s.active = 1 ORDER BY s.save_date DESC", {'user_id': user_id})
+        articles = [[row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], 1] for row in cursor.fetchall()]
 
         # get interests data
         cursor.execute("SELECT * FROM userinterests WHERE user_id = :user_id and active = 1", {'user_id': user_id})
@@ -284,7 +265,6 @@ def recommend_six_articles():
         
         #REPLACE THIS LINE WITH A REAL USER
         data = request.json
-        print(data)
         user_id = data.get('user_id')
 
 
@@ -299,7 +279,6 @@ def recommend_six_articles():
         topics = [row[0] for row in cursor.fetchall()]
 
         if len(topics) == 0:
-            print("THERE ARE NO TOPICS LISTED")
             topics = ['arts', 'business', 'health', 'technology', 'world', 'sports', 'food', 'lifestyle', 'politics', 'travel', 'tourism', 'us', 'entertainment']
 
 
@@ -329,8 +308,8 @@ def recommend_six_articles():
                         retrieved_date_str = rec[4].strftime('%Y-%m-%d %H:%M:%S') if rec[4] else None
 
                         insert_query = f"INSERT INTO userarticles(user_id, article_id, retrieved_date, displayed) VALUES({user_id}, {rec[0]}, TO_DATE('{retrieved_date_str}', 'YYYY-MM-DD HH24:MI:SS'), 0)"
-                        
                         cursor.execute(insert_query)  
+                        oracle_connection.commit()
     
                     if len(recs) >= 6:
                         break
@@ -343,12 +322,9 @@ def recommend_six_articles():
 
         #NOW ONLY PULL 6 ARTICLES FROM USERARTICLES
         if load_more or flag_count == 0:
-            print("FIRST CASE")
             userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {user_id} AND u.article_id = a.article_id AND u.displayed = 0 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id) where rownum <= 6"
         else:
-            print("ELSE CASE")
             userarticles_query = f"SELECT * FROM (SELECT u.article_id, a.title, a.author, a.retrieved_date, a.url, a.image_url, a.description, a.topic FROM userarticles u, articles a WHERE u.user_id = {user_id} AND u.article_id = a.article_id AND u.displayed = 1 AND TO_CHAR(a.retrieved_date, 'DD-MON-YY') = '{date}' ORDER BY u.userarticle_id)"
-            print(userarticles_query)
         cursor.execute(userarticles_query)
         results = cursor.fetchall()
 
@@ -389,6 +365,7 @@ def recommend_six_articles():
                         WHERE user_id = {user_id} AND article_id = {result[0]}
                     """
                     cursor.execute(update_query)
+                    oracle_connection.commit()
 
 
         oracle_connection.commit()
@@ -429,6 +406,8 @@ def mark_as_favorite():
                 WHERE user_id = {user_id} AND article_id = {article_id}
             """
             cursor.execute(update_query)
+            oracle_connection.commit()
+            return jsonify({'success': True, 'active': 1}), 200
         #if article has not been touched yet
         elif active == -1:
             insert_query = f"""
@@ -436,6 +415,8 @@ def mark_as_favorite():
                 VALUES ({user_id}, {article_id}, 1)
             """
             cursor.execute(insert_query)
+            oracle_connection.commit()
+            return jsonify({'success': True, 'active': 1}), 200
         elif active == 1:
             update_query = f"""
                 UPDATE savedarticles
@@ -443,9 +424,9 @@ def mark_as_favorite():
                 WHERE user_id = {user_id} AND article_id = {article_id}
             """
             cursor.execute(update_query)
+            oracle_connection.commit()
+            return jsonify({'success': True, 'active':0}), 200
 
-    
-        return jsonify({'success': True}), 200
 
 
     except Exception as e:
@@ -463,7 +444,7 @@ def get_posts():
                 A.ARTICLE_ID, A.TITLE, A.AUTHOR, A.PUBLISH_DATE AS ARTICLE_PUBLISH_DATE, 
                 A.NEWS_SOURCE, A.URL, A.IMAGE_URL, A.DESCRIPTION,
                 C.CONTENT AS COMMENT_CONTENT, C.DATE_COMMENTED AS COMMENT_DATE,
-                UC.USERNAME AS COMMENT_USERNAME
+                UC.USERNAME AS COMMENT_USERNAME, L.LIKE_ID AS LIKE_ID, L.USER_ID as LIKE_USER_ID, L.POST_ID as LIKE_POST_ID, L.ACTIVE as LIKE_ACTIVE
             FROM 
                 POSTS P
             INNER JOIN 
@@ -474,6 +455,8 @@ def get_posts():
                 COMMENTS C ON P.POST_ID = C.POST_ID
             LEFT JOIN 
                 USERS UC ON C.USER_ID = UC.USER_ID
+            LEFT JOIN
+                LIKES L ON P.POST_ID = L.POST_ID
             ORDER BY 
                 P.POST_ID DESC
         """)
@@ -485,7 +468,6 @@ def get_posts():
         posts_data = []
         current_post_id = None
         for row in rows:
-            print(row)
             post_id = row[0]
             if post_id != current_post_id:
                 post_data = {
@@ -501,7 +483,8 @@ def get_posts():
                     'URL': row[9],
                     'IMAGE_URL': row[10],
                     'DESCRIPTION': row[11],
-                    'COMMENTS': []  # Initialize comments list for each post
+                    'COMMENTS': [],  # Initialize comments list for each post
+                    'LIKES': []
                 }
                 posts_data.append(post_data)
                 current_post_id = post_id
@@ -512,6 +495,15 @@ def get_posts():
                     'CONTENT': row[12],
                     'DATE': row[13],
                     'USERNAME': row[14]
+                })
+            
+            # Add like details to the likes list of the current post
+            if row[15]:
+                post_data['LIKES'].append({
+                    'LIKE_ID': row[15],
+                    'USER_ID': row[16],
+                    'POST_ID': row[17],
+                    'ACTIVE': row[18]
                 })
         return jsonify(posts_data)
     except Exception as e:
@@ -577,12 +569,9 @@ def handle_create_post():
     if request.method == 'GET':
         try:
             article_id = request.args.get('article_id')
-            print("article_id: ", article_id, file=sys.stderr)
             # Fetch article details from the database based on the provided article_id
             cursor.execute("SELECT * FROM ARTICLES WHERE ARTICLE_ID = :article_id", {'article_id': article_id})
             article_data = cursor.fetchone()
-
-            print("article data: ", article_data, file=sys.stderr)
 
             if article_data:
                 # Construct a dictionary containing article details
@@ -608,7 +597,6 @@ def handle_create_post():
     elif request.method == 'POST':
         try:
             data = request.json
-            print("Received data:", data)
             content = data.get('content')
             article_id = data.get('article_id')
             current_date = data.get('post_publish_date')
@@ -620,19 +608,12 @@ def handle_create_post():
             # Convert the datetime object back to a string in the desired format
             formatted_date = date_obj.strftime('%Y-%m-%d %H:%M:%S')
 
-            print("Content:", content)
-            print("Article ID:", article_id)
-            print("Current Date:", date_obj)
-            print("User ID:", user_id)
-
             cursor.execute("INSERT INTO POSTS (USER_ID, ARTICLE_ID, CONTENT, PUBLISH_DATE) VALUES (:user_id, :article_id, :content, :publish_date)", {'user_id': user_id, 'article_id': article_id, 'content': content, 'publish_date': date_obj})
             oracle_connection.commit()
             
-            print('Post created successfully')
             return jsonify({'success': True, 'message': 'Post created successfully'})
 
         except Exception as e:
-            print("Error:", e)
             return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/submit-comment', methods=['POST'])
@@ -640,12 +621,10 @@ def submit_comment():
     try:
         data = request.json
 
-        print('hello???')
         # Extract postId and content from the request data
         postId = data.get('postId')
         content = data.get('content')
         current_user_id = data.get('user_id')
-        print(current_user_id)
         date_commented = data.get('comment_publish_date')
 
         # Convert the date string to a datetime object
@@ -654,7 +633,6 @@ def submit_comment():
         # Convert the datetime object back to a string in the desired format
         formatted_date = date_obj.strftime('%Y-%m-%d %H:%M:%S')
         
-        print(current_user_id)
         # Insert the comment into the database
         cursor.execute("INSERT INTO COMMENTS (USER_ID, POST_ID, CONTENT, DATE_COMMENTED) VALUES (:user_id, :post_id, :content, :date_commented)", {'user_id': current_user_id, 'post_id': postId, 'content': content, 'date_commented': date_obj})
         oracle_connection.commit()
@@ -720,6 +698,8 @@ def follow():
         follower_str = data.get('follower')
         following_str = data.get('following')
 
+        print(follower_str, following_str)
+
         cursor.execute("SELECT * FROM followers WHERE follower_user_id = :follower AND followed_user_id = :following", {'follower': follower_str, 'following': following_str})
         follow_data = cursor.fetchone()
 
@@ -734,7 +714,24 @@ def follow():
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/check_follow', methods=['POST'])
+def check_follow():
+    try:
+        data = request.json
+        follower_str = data.get('follower')
+        following_str = data.get('following')
 
+        cursor.execute("SELECT * FROM followers WHERE follower_user_id = :follower AND followed_user_id = :following AND active = 1", {'follower': follower_str, 'following': following_str})
+        follow_data = cursor.fetchone()
+
+        if follow_data:
+            return jsonify({'success': True, 'following': True})
+        else:
+            return jsonify({'success': True, 'following': False})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/get_user_interests', methods=['POST'])
 def get_user_interests():
@@ -801,6 +798,44 @@ def existing_users():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/like_post', methods=['POST'])
+def like_post():
+    try:
+        data = request.json
+        user_str = data.get('user')
+        post_str = data.get('post')
+
+        cursor.execute("SELECT * FROM likes WHERE user_id = :user_id AND post_id = :post_id", {'user_id': user_str, 'post_id': post_str})
+        like_data = cursor.fetchone()
+
+        if like_data:
+            cursor.execute("UPDATE likes SET active = 1 WHERE user_id = :user_id AND post_id = :post_id", {'user_id': user_str, 'post_id': post_str})
+            oracle_connection.commit()
+        else:
+            cursor.execute("INSERT INTO likes (user_id, post_id, active) VALUES (:user_id, :post_id, 1)", {'user_id': user_str, 'post_id': post_str})
+            oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'Post liked'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/unlike_post', methods=['POST'])
+def unlike_post():
+    try:
+        data = request.json
+        user_str = data.get('user')
+        post_str = data.get('post')
+
+        cursor.execute("UPDATE likes SET active = 0 WHERE user_id = :user_id AND post_id = :post_id", {'user_id': user_str, 'post_id': post_str})
+        oracle_connection.commit()
+
+        return jsonify({'success': True, 'message': 'Post unliked'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
     
 if __name__ == '__main__':
    app.run(debug=True, host='0.0.0.0', port=5000)

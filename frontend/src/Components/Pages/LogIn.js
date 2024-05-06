@@ -15,12 +15,12 @@ export default function LogIn({ sendToParent }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (formData.username == "" || formData.password == "") {
-            if (formData.username == "") {
+        if (formData.username === "" || formData.password === "") {
+            if (formData.username === "") {
                 setUserError({ ...userError, "error": true, "errorMessage": "Please enter your username." });
             }
 
-            if (formData.password == "") {
+            if (formData.password === "") {
                 setPassError({ ...passError, "error": true, "errorMessage": "Please enter your password." });
             }
 

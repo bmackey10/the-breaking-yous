@@ -31,7 +31,12 @@ export default function Register({ sendToParent }) {
                     'Content-Type': 'application/json',
                 },
             }).then((response) => {
-                return response.json();
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
             }).then((users) => {
                 setExistUser([...users?.usernames]);
                 setExistEmail([...users?.emails]);
