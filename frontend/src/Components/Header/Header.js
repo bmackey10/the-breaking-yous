@@ -6,7 +6,8 @@ import NewspaperIcon from "../../Images/newspaper.png";
 
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [currentUser, setCurrentUser] = useState("");
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -19,6 +20,7 @@ export default function Header() {
             return response.json();
         }).then((current_user) => {
             setIsLoggedIn(current_user.authenticated);
+            setCurrentUser(current_user.username);
         })
     });
 
@@ -74,7 +76,7 @@ export default function Header() {
                     <div className="hidden lg:flex lg:col-span-1 lg:gap-x-12 lg:justify-end">
                         {isLoggedIn ? (
                             <Link
-                                to="/profile/bmackey"
+                                to={"/profile/" + currentUser}
                                 className="-m-1.5 p-1.5 transition-all ease-in-out duration-500 border-b-2 border-theme-navy-blue hover:border-white text-sm font-semibold font-merriweather leading-6 text-white"
                             >
                                 Profile
@@ -168,7 +170,7 @@ export default function Header() {
                             <div className="space-y-2 py-6">
                                 {isLoggedIn ? (
                                     <Link
-                                        to="/profile/bmackey"
+                                        to={"/profile/" + currentUser}
                                         onClick={() => setMobileMenuOpen(false)}
                                         className="-mx-3 transition-all ease-in-out duration-500 hover:bg-theme-pale-blue block rounded-lg px-3 py-2.5 text-base font-semibold font-merriweather leading-7 text-white"
                                     >
