@@ -23,30 +23,43 @@ export default function SelectInterests() {
     });
 
     useEffect(() => {
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((current_user) => {
-            setCurrUser(current_user.user_id)
-            fetch('/get_user_interests', {
+        try {
+            fetch('/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user: current_user.user_id })
             }).then((response) => {
-                return response.json();
-            }).then((interests) => {
-                console.log(interests)
-                const new_interestsObj = { ...interestsObj }
-                interests.interests.map((interest) => new_interestsObj[interest[0].toUpperCase() + interest.slice(1)] = 1)
-                setInterestsObj({ ...new_interestsObj })
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((user) => {
+                setCurrUser(user.user_id)
+                fetch('/get_user_interests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user: user.user_id })
+                }).then((response) => {
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then((interests) => {
+                    const newInterestsObj = { ...interestsObj }
+                    interests.interests.map((interest) => newInterestsObj[interest[0].toUpperCase() + interest.slice(1)] = 1)
+                    setInterestsObj({ ...newInterestsObj })
+                })
             })
-        })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }, [username]);
 
     const handleRemoveInterestClick = (e) => {
@@ -56,18 +69,26 @@ export default function SelectInterests() {
                 [e.target.id == "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 0,
             }));
 
-
-            fetch('/remove_interest', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
-            }).then((response) => {
-                return response.json();
-            }).then((data) => {
-                console.log(data.message)
-            })
+            try {
+                fetch('/remove_interest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
+                }).then((response) => {
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then((data) => {
+                    console.log(data.message)
+                })
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     };
 
@@ -78,18 +99,26 @@ export default function SelectInterests() {
                 [e.target.id == "US" ? e.target.id : e.target.id[0].toUpperCase() + e.target.id.slice(1)]: 1,
             }));
 
-
-            fetch('/add_interest', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
-            }).then((response) => {
-                return response.json();
-            }).then((data) => {
-                console.log(data.message)
-            })
+            try {
+                fetch('/add_interest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user: currUser, topic: (e.target.id == "US" ? e.target.id : e.target.id.toLowerCase()) })
+                }).then((response) => {
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then((data) => {
+                    console.log(data.message)
+                })
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     }
 

@@ -26,7 +26,8 @@ def get_top_stories(section):
             multimedia = article.get('multimedia')
             if multimedia:
                 for media in multimedia:
-                    if media.get('format') == 'Normal':
+                    if media.get('type') == 'image':
+                        print("FOUND MEDIA")
                         main_image_url = media.get('url')
                         break
             filtered_article = {

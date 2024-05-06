@@ -47,16 +47,6 @@ function App() {
                     </Route>
                 </Routes>
             </Router>
-            {/* <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
-                <Modal.Header>
-                    <div className="font-merriweather font-semibold text-theme-dark-red text-xl">Please log in to access this page!</div>
-                </Modal.Header>
-                <Modal.Body>
-
-                </Modal.Body>
-                <Modal.Footer>
-                </Modal.Footer>
-            </Modal> */}
         </div>
 
     );

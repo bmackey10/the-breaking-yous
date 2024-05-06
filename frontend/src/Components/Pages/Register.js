@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
-
 
 export default function Register() {
     const [passError, setPassError] = useState({ "error": false, "errorMessage": "" });
@@ -24,21 +22,120 @@ export default function Register() {
     });
 
     useEffect(() => {
-        fetch('/existing_users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((users) => {
-            setExistUser([...users.usernames]);
-            setExistEmail([...users.emails]);
-        })
+        try {
+            fetch('/existing_users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                return response.json();
+            }).then((users) => {
+                setExistUser([...users.usernames]);
+                setExistEmail([...users.emails]);
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }, []);
 
-    const handleSubmit = async (e) => {
+    const registerError = () => {
+
+        // all fields must be filled out
+        if (formData.username === "") {
+            setUserError({ ...userError, "error": true, "errorMessage": "Please enter a username." });
+            return 1;
+        }
+
+        if (formData.password === "") {
+            setPassError({ ...passError, "error": true, "errorMessage": "Please enter a password." });
+            return 1;
+        }
+
+        if (formData.firstName === "") {
+            setFirstError({ ...firstError, "error": true, "errorMessage": "Please enter a first name." });
+            return 1;
+        }
+
+        if (formData.lastName === "") {
+            setLastError({ ...lastError, "error": true, "errorMessage": "Please enter a last name." });
+            return 1;
+        }
+
+        if (formData.birthDate === "") {
+            setBirthError({ ...birthError, "error": true, "errorMessage": "Please enter a birth date." });
+            return 1;
+        }
+
+        if (formData.phoneNumber === "") {
+            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Please enter a phone number." });
+            return 1;
+        }
+
+        if (formData.email === "") {
+            setEmailError({ ...emailError, "error": true, "errorMessage": "Please enter an email." });
+            return 1;
+        }
+
+        // check to make sure username or email isn't alreay in use
+        if (existUser.includes(formData.username) || existEmail.includes(formData.email)) {
+            if (existUser.includes(formData.username)) {
+                setUserError({ ...userError, "error": true, "errorMessage": "This username is already in use. Please choose a new username." });
+                return 1;
+            }
+
+            if (existEmail.includes(formData.email)) {
+                setEmailError({ ...emailError, "error": true, "errorMessage": "This email is already in use. Please choose a new email." });
+                return 1;
+            }
+
+        }
+
+        // validate username and password
+        if (new RegExp(/^[A-Za-z][A-Za-z0-9]+$/).test(formData.username) === false) {
+            setUserError({ ...userError, "error": true, "errorMessage": "Username must begin with a character." });
+            return 1;
+        }
+
+        if (new RegExp(/^[A-Za-x0-9#$@!%&*?]{6,20}$/).test(formData.password) === false) {
+            setPassError({ ...passError, "error": true, "errorMessage": "Password must be between 6-20 characters." });
+            return 1;
+        }
+
+        // validate phone number
+        if (/^\d+$/.test(formData.phoneNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "")) === false) {
+            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Phone number cannot contain non-numbers." })
+            return 1;
+        }
+
+        if (formData.phoneNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "").length !== 10) {
+            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Invalid phone number." })
+            return 1;
+        }
+
+        // validate phone number
+        if (new RegExp(/^[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9]$/).test(formData.birthDate) === false) {
+            setBirthError({ ...birthError, "error": true, "errorMessage": "Birth date must be in MM/DD/YYYY form." });
+            return 1;
+        }
+
+        // validate first and last name
+        if (new RegExp(/^[A-Za-z][A-Za-z]+$/).test(formData.firstName) === false) {
+            setFirstError({ ...firstError, "error": true, "errorMessage": "First name can only include characters." });
+            return 1;
+        }
+        if (new RegExp(/^[A-Za-z][A-Za-z]+$/).test(formData.lastName) === false) {
+            setLastError({ ...lastError, "error": true, "errorMessage": "Last name can only include characters." });
+            return 1;
+        }
+
+        return 0;
+    }
+
+    const handleSubmit = (e) => {
         e.preventDefault();
+
+        // reset all error messages
         setUserError({ ...userError, "error": false, "errorMessage": "" });
         setPassError({ ...passError, "error": false, "errorMessage": "" });
         setFirstError({ ...firstError, "error": false, "errorMessage": "" });
@@ -47,79 +144,7 @@ export default function Register() {
         setPhoneError({ ...phoneError, "error": false, "errorMessage": "" });
         setEmailError({ ...emailError, "error": false, "errorMessage": "" });
 
-        if (formData.username === "") {
-            setUserError({ ...userError, "error": true, "errorMessage": "Please enter a username." });
-            return;
-        }
-
-        if (formData.password === "") {
-            setPassError({ ...passError, "error": true, "errorMessage": "Please enter a password." });
-            return;
-        }
-
-        if (formData.firstName === "") {
-            setFirstError({ ...firstError, "error": true, "errorMessage": "Please enter a first name." });
-            return;
-        }
-
-        if (formData.lastName === "") {
-            setLastError({ ...lastError, "error": true, "errorMessage": "Please enter a last name." });
-            return;
-        }
-
-        if (formData.birthDate === "") {
-            setBirthError({ ...birthError, "error": true, "errorMessage": "Please enter a birth date." });
-            return;
-        }
-
-        if (formData.phoneNumber === "") {
-            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Please enter a phone number." });
-            return;
-        }
-
-        if (formData.email === "") {
-            setEmailError({ ...emailError, "error": true, "errorMessage": "Please enter an email." });
-            return;
-        }
-
-        if (existUser.includes(formData.username) || existEmail.includes(formData.email)) {
-            if (existUser.includes(formData.username)) {
-                setUserError({ ...userError, "error": true, "errorMessage": "This username is already in use. Please choose a new username." });
-                return;
-            }
-
-            if (existEmail.includes(formData.email)) {
-                setEmailError({ ...emailError, "error": true, "errorMessage": "This email is already in use. Please choose a new email." });
-                return;
-            }
-
-        }
-        if (new RegExp(/^[A-Za-z][A-Za-z0-9]+$/).test(formData.username) === false) {
-            setUserError({ ...userError, "error": true, "errorMessage": "Username must begin with a character." });
-            return;
-        }
-        if (new RegExp(/^[A-Za-x0-9#$@!%&*?]{6,20}$/).test(formData.password) === false) {
-            setPassError({ ...passError, "error": true, "errorMessage": "Password must be between 6-20 characters." });
-            return;
-        }
-        if (/^\d+$/.test(formData.phoneNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "")) === false) {
-            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Phone number cannot contain non-numbers." })
-            return;
-        }
-        if (formData.phoneNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "").length !== 10) {
-            setPhoneError({ ...phoneError, "error": true, "errorMessage": "Invalid phone number." })
-            return;
-        }
-        if (new RegExp(/^[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9]$/).test(formData.birthDate) === false) {
-            setBirthError({ ...birthError, "error": true, "errorMessage": "Birth date must be in MM/DD/YYYY form." });
-            return;
-        }
-        if (new RegExp(/^[A-Za-z][A-Za-z]+$/).test(formData.firstName) === false) {
-            setFirstError({ ...firstError, "error": true, "errorMessage": "First name can only include characters." });
-            return;
-        }
-        if (new RegExp(/^[A-Za-z][A-Za-z]+$/).test(formData.lastName) === false) {
-            setLastError({ ...lastError, "error": true, "errorMessage": "Last name can only include characters." });
+        if (registerError()) {
             return;
         }
 
@@ -131,29 +156,27 @@ export default function Register() {
                 },
                 body: JSON.stringify({ ...formData, phoneNumber: formData.phoneNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "") }),
             }).then((response) => {
-                if (response.ok) {
+                if (response?.ok) {
                     console.log("User Registered");
                     return response.json();
                 } else {
                     console.log(`HTTP Response Code: ${response?.status}`)
-                    return "error";
+                    throw new Error('Server returned ' + response?.status);
                 }
             }).then((data) => {
-                if (data != "error") {
-                    setUserError({ ...userError, "error": false, "errorMessage": "" });
-                    setPassError({ ...passError, "error": false, "errorMessage": "" });
-                    setFirstError({ ...firstError, "error": false, "errorMessage": "" });
-                    setLastError({ ...lastError, "error": false, "errorMessage": "" });
-                    setBirthError({ ...birthError, "error": false, "errorMessage": "" });
-                    setPhoneError({ ...phoneError, "error": false, "errorMessage": "" });
-                    setEmailError({ ...emailError, "error": false, "errorMessage": "" });
-                }
+                setUserError({ ...userError, "error": false, "errorMessage": "" });
+                setPassError({ ...passError, "error": false, "errorMessage": "" });
+                setFirstError({ ...firstError, "error": false, "errorMessage": "" });
+                setLastError({ ...lastError, "error": false, "errorMessage": "" });
+                setBirthError({ ...birthError, "error": false, "errorMessage": "" });
+                setPhoneError({ ...phoneError, "error": false, "errorMessage": "" });
+                setEmailError({ ...emailError, "error": false, "errorMessage": "" });
             });
         } catch (error) {
             console.error('Error:', error);
         }
 
-        // Reset form data after submission
+        // reset form data after submission
         setFormData({
             username: "",
             password: "",

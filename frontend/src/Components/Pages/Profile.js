@@ -6,7 +6,6 @@ import { PlusCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 export default function Profile() {
     const { username } = useParams();
     const [openModal, setOpenModal] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isCurrUser, setIsCurrUser] = useState(false);
     const [nameInput, setNameInput] = useState("");
     const [usernameInput, setUsernameInput] = useState("");
@@ -24,30 +23,46 @@ export default function Profile() {
 
 
     useEffect(() => {
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((current_user) => {
-            setIsLoggedIn(current_user.authenticated);
-            if (current_user.username && username === current_user.username) {
-                setIsCurrUser(true);
-            }
-            fetch('/get_profile', {
+        try {
+            fetch('/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user: username })
             }).then((response) => {
-                return response.json();
-            }).then((profile_info) => {
-                setProfile({ ...profile_info });
+                if (response?.ok) {
+                    console.log("User Registered");
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((current_user) => {
+                if (current_user.username && username === current_user.username) {
+                    setIsCurrUser(true);
+                }
+                fetch('/get_profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user: username })
+                }).then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        return "error";
+                    }
+                }).then((profile_info) => {
+                    if (profile_info != "error") {
+                        setProfile({ ...profile_info });
+                    }
+                })
             })
-        })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }, [username]);
 
 

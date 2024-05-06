@@ -1,4 +1,4 @@
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import ErrorPage from "./ErrorPage.js";
 
@@ -7,20 +7,27 @@ const PrivateRoute = () => {
     const [canReturn, setCanReturn] = useState(false);
 
     useEffect(() => {
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((current_user) => {
-            setIsLoggedIn(current_user.authenticated);
-            setCanReturn(true);
-        })
+        try {
+            fetch('/get_current_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((user) => {
+                setIsLoggedIn(user.authenticated);
+                setCanReturn(true);
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     });
-
-
 
     return canReturn ? (isLoggedIn ? <Outlet /> : <ErrorPage />) : (<div>Loading...</div>);
 };

@@ -5,6 +5,8 @@ import PostInfo from "../Modules/PostInfo.js";
 export default function Community() {
     const [posts, setPosts] = useState([]);
     const [curr_user, setUser] = useState({});
+    const [dbConnection, setDbConnection] = useState(false); // New state for DB connection status
+
 
     const fetchCurrentUser = () => {
         fetch('/get_current_user', {
@@ -22,6 +24,8 @@ export default function Community() {
     useEffect(() => {
         fetchCurrentUser();
         fetchPosts();
+        checkDBConnection(); // Call the function to check DB connection
+
     }, []);
 
 
@@ -42,6 +46,21 @@ export default function Community() {
             });
     };
 
+    const checkDBConnection = () => {
+        fetch('/check_db_connection')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP Response Code: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setDbConnection(data.connected); // Assuming the response contains a field indicating DB connection status
+            })
+            .catch((error) => {
+                console.error('Error checking DB connection:', error);
+            });
+    };
 
 
     return (
