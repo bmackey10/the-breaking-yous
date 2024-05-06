@@ -3,118 +3,137 @@ import { useState, useEffect } from "react";
 
 export default function ForYou() {
     const [articles, setArticles] = useState([]);
-    const [numArticlesToShow, setNumArticlesToShow] = useState(6); 
+    const [numArticlesToShow, setNumArticlesToShow] = useState(6);
     const [user, setUser] = useState(null);
-    const [dbConnectionStatus, setDbConnectionStatus] = useState(null);
 
 
     useEffect(() => {
         fetchCurrentUser();
-        checkDbConnection();
     }, []);
 
     const fetchCurrentUser = () => {
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then((response) => {
-            return response.json();
-        })
-        .then((current_user) => {
-            setUser({...current_user});
-            fetchData(current_user); 
-        })
-        .catch((error) => {
-            console.error('Error fetching current user:', error);
-        });
+        try {
+            fetch('/get_current_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then((response) => {
+                    //return response.json();
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                })
+                .then((current_user) => {
+                    setUser({ ...current_user });
+                    fetchData(current_user);
+                })
+            // .catch((error) => {
+            //     console.error('Error fetching current user:', error);
+            // });
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
+
+
     const fetchData = (current_user, loadMore = false) => {
-        const url = '/for-you' + (loadMore ? '?load_more=true' : ''); 
-        console.log(current_user);
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: current_user.user_id,
-            }),
-        })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                console.log(`HTTP Response Code: ${response?.status}`)
-                return "error";
-            }
-        })
-        .then((data) => {
-            // Handle response data
-            if (data !== "error") {
-                console.log(data)
-                if (Array.isArray(data.articles)) {
-                    if (loadMore) {
-                        // Append new articles to existing articles
-                        setArticles(prevArticles => [...(prevArticles || []), ...data.articles]);
+        try {
+            const url = '/for-you' + (loadMore ? '?load_more=true' : '');
+            console.log(current_user);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: current_user.user_id,
+                }),
+            })
+                .then((response) => {
+                    // if (response.ok) {
+                    //     return response.json();
+                    // } else {
+                    //     console.log(`HTTP Response Code: ${response?.status}`)
+                    //     return "error";
+                    // }
+                    if (response?.ok) {
+                        return response.json();
                     } else {
-                        // Replace existing articles with fetched articles
-                        setArticles(data.articles);
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
                     }
-                } else {
-                    console.error('Articles data is not in the expected format:', data.articles);
-                }
-            } else {
-                console.error('Error fetching articles:', data.error);
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-        });
+                })
+                .then((data) => {
+                    // Handle response data
+                    if (data !== "error") {
+                        console.log(data)
+                        if (Array.isArray(data.articles)) {
+                            if (loadMore) {
+                                // Append new articles to existing articles
+                                setArticles(prevArticles => [...(prevArticles || []), ...data.articles]);
+                            } else {
+                                // Replace existing articles with fetched articles
+                                setArticles(data.articles);
+                            }
+                        } else {
+                            console.error('Articles data is not in the expected format:', data.articles);
+                        }
+                    } else {
+                        console.error('Error fetching articles:', data.error);
+                    }
+                })
+            // .catch((error) => {
+            //     console.error('Error fetching data:', error);
+            // });
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     const handleAddToFavorites = (articleId, newFavoriteStatus) => {
-        // Send a request to the backend to mark the article as favorited
-        fetch('/mark-as-favorite', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: user.user_id,
-                article_id: articleId,
-            }),
-        })
-        .then((response) => {
-            if (response.ok) {
-                // Article marked as favorited successfully, update UI or perform any necessary action
-            } else {
-                console.error('Failed to mark article as favorited:', response.statusText);
-            }
-        })
-        .catch((error) => {
-            console.error('Error marking article as favorited:', error);
-        });
-    };
+        try {
+            // Send a request to the backend to mark the article as favorited
 
-    const checkDbConnection = () => {
-        fetch('/check_db_connection')
-            .then((response) => response.json())
-            .then((data) => {
-                setDbConnectionStatus(data.success ? 'Database connection successful' : 'Database connection failed');
+            fetch('/mark-as-favorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: user.user_id,
+                    article_id: articleId,
+                }),
             })
-            .catch((error) => {
-                console.error('Error checking database connection:', error);
-            });
+                .then((response) => {
+                    // if (response.ok) {
+                    //     // Article marked as favorited successfully, update UI or perform any necessary action
+                    // } else {
+                    //     console.error('Failed to mark article as favorited:', response.statusText);
+                    // }
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                })
+            // .catch((error) => {
+            //     console.error('Error marking article as favorited:', error);
+            // });
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
-    
 
     const handleLoadMore = () => {
-        setNumArticlesToShow(prevNumArticles => prevNumArticles + 6); 
-        fetchData(user, true); 
+        setNumArticlesToShow(prevNumArticles => prevNumArticles + 6);
+        fetchData(user, true);
     };
 
 
@@ -134,20 +153,20 @@ export default function ForYou() {
                             <Article
                                 id={article.article_id}
                                 url={article.url}
-                                img={(article.image_url !== 'None' && article.image_url) || 
-                                (article.topic.toLowerCase() === 'business' ? 'https://img.freepik.com/free-photo/aerial-view-business-data-analysis-graph_53876-146152.jpg' : 
-                                article.topic.toLowerCase() === 'arts' ? 'https://images.pexels.com/photos/1183992/pexels-photo-1183992.jpeg?cs=srgb&dl=pexels-steve-1183992.jpg&fm=jpg' :
-                                article.topic.toLowerCase() === 'health' ? 'https://st3.depositphotos.com/13349494/17896/i/450/depositphotos_178964966-stock-photo-stethoscope-paper-cardiogram-scattered-pills.jpg' : 
-                                article.topic.toLowerCase() === 'technology' ? 'https://media.istockphoto.com/id/1387945043/photo/computer-technology-background-digital-data-flow-network-connection-structure-big-data.jpg?s=612x612&w=0&k=20&c=V2cZ-hiraxH7UVPiTSWgYftHjx0iSevz0xfUuJLJ9pc=' : 
-                                article.topic.toLowerCase() === 'world' ? 'https://images.pexels.com/photos/335393/pexels-photo-335393.jpeg?cs=srgb&dl=pexels-nastyasensei-66707-335393.jpg&fm=jpg' :
-                                article.topic.toLowerCase() === 'sports' ? 'https://media.istockphoto.com/id/949190756/photo/various-sport-equipments-on-grass.webp?b=1&s=170667a&w=0&k=20&c=0du9Ul5NHOHDjpolTa8GKvLVSdOCoRPN-JGI_chUOsI=' :
-                                article.topic.toLowerCase() === 'food' ? 'https://media.istockphoto.com/id/1155240408/photo/table-filled-with-large-variety-of-food.jpg?s=612x612&w=0&k=20&c=uJEbKmR3wOxwdhQR_36as5WeP6_HDqfU-QmAq63OVEE=' :
-                                article.topic.toLowerCase() === 'lifestyle' ? 'https://st2.depositphotos.com/1854227/5608/i/450/depositphotos_56086767-stock-photo-cross-country-trail-running-people.jpg' :
-                                article.topic.toLowerCase() === 'politics' ? 'https://st.depositphotos.com/1034300/1363/i/450/depositphotos_13632170-stock-photo-business-meeting-conference-journalism-microphones.jpg' :
-                                article.topic.toLowerCase() === 'travel' ? 'https://t4.ftcdn.net/jpg/02/80/82/81/360_F_280828158_ZZ2W8atYMHiSkLoDzxgDHNhdmXJ31jCR.jpg' :
-                                article.topic.toLowerCase() === 'us' ? 'https://media.istockphoto.com/id/1314505420/photo/the-flag-of-the-united-states-of-america-flying-in-front-of-the-capitol-building-blurred-in.jpg?s=612x612&w=0&k=20&c=-y5ZHNaTUQzoD9Dx_6D3KYNFvK7Ff4yEitJUUHaNLJ8=' :
-                                article.topic.toLowerCase() === 'entertainment' ? 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500' :
-                                'https://st2.depositphotos.com/3223379/5688/i/950/depositphotos_56880225-stock-photo-words-news.jpg')}    
+                                img={(article.image_url !== 'None' && article.image_url) ||
+                                    (article.topic.toLowerCase() === 'business' ? 'https://img.freepik.com/free-photo/aerial-view-business-data-analysis-graph_53876-146152.jpg' :
+                                        article.topic.toLowerCase() === 'arts' ? 'https://images.pexels.com/photos/1183992/pexels-photo-1183992.jpeg?cs=srgb&dl=pexels-steve-1183992.jpg&fm=jpg' :
+                                            article.topic.toLowerCase() === 'health' ? 'https://st3.depositphotos.com/13349494/17896/i/450/depositphotos_178964966-stock-photo-stethoscope-paper-cardiogram-scattered-pills.jpg' :
+                                                article.topic.toLowerCase() === 'technology' ? 'https://media.istockphoto.com/id/1387945043/photo/computer-technology-background-digital-data-flow-network-connection-structure-big-data.jpg?s=612x612&w=0&k=20&c=V2cZ-hiraxH7UVPiTSWgYftHjx0iSevz0xfUuJLJ9pc=' :
+                                                    article.topic.toLowerCase() === 'world' ? 'https://images.pexels.com/photos/335393/pexels-photo-335393.jpeg?cs=srgb&dl=pexels-nastyasensei-66707-335393.jpg&fm=jpg' :
+                                                        article.topic.toLowerCase() === 'sports' ? 'https://media.istockphoto.com/id/949190756/photo/various-sport-equipments-on-grass.webp?b=1&s=170667a&w=0&k=20&c=0du9Ul5NHOHDjpolTa8GKvLVSdOCoRPN-JGI_chUOsI=' :
+                                                            article.topic.toLowerCase() === 'food' ? 'https://media.istockphoto.com/id/1155240408/photo/table-filled-with-large-variety-of-food.jpg?s=612x612&w=0&k=20&c=uJEbKmR3wOxwdhQR_36as5WeP6_HDqfU-QmAq63OVEE=' :
+                                                                article.topic.toLowerCase() === 'lifestyle' ? 'https://st2.depositphotos.com/1854227/5608/i/450/depositphotos_56086767-stock-photo-cross-country-trail-running-people.jpg' :
+                                                                    article.topic.toLowerCase() === 'politics' ? 'https://st.depositphotos.com/1034300/1363/i/450/depositphotos_13632170-stock-photo-business-meeting-conference-journalism-microphones.jpg' :
+                                                                        article.topic.toLowerCase() === 'travel' ? 'https://t4.ftcdn.net/jpg/02/80/82/81/360_F_280828158_ZZ2W8atYMHiSkLoDzxgDHNhdmXJ31jCR.jpg' :
+                                                                            article.topic.toLowerCase() === 'us' ? 'https://media.istockphoto.com/id/1314505420/photo/the-flag-of-the-united-states-of-america-flying-in-front-of-the-capitol-building-blurred-in.jpg?s=612x612&w=0&k=20&c=-y5ZHNaTUQzoD9Dx_6D3KYNFvK7Ff4yEitJUUHaNLJ8=' :
+                                                                                article.topic.toLowerCase() === 'entertainment' ? 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500' :
+                                                                                    'https://st2.depositphotos.com/3223379/5688/i/950/depositphotos_56880225-stock-photo-words-news.jpg')}
                                 auth={article.author}
                                 date={article.retrieved_date}
                                 title={article.title}
