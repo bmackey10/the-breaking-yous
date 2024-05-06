@@ -11,33 +11,51 @@ export default function Header() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        fetch('/get_current_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((current_user) => {
-            setIsLoggedIn(current_user.authenticated);
-            setCurrentUser(current_user.username);
-        })
+        try {
+            fetch('/get_current_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((current_user) => {
+                setIsLoggedIn(current_user.authenticated);
+                setCurrentUser(current_user.username);
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     });
 
     const handleLogOut = () => {
         setIsLoggedIn(!isLoggedIn);
 
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-            console.log("User Logged Out")
-            console.log(data);
-        })
+        try {
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((data) => {
+                console.log("User Logged Out")
+                console.log(data);
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
 
         setMobileMenuOpen(false);
         window.location.reload();

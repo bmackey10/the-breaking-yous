@@ -30,7 +30,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/" element={<RestrictedRoute />}>
                         <Route path="log-in" element={<LogIn sendToParent={handleLogInChange} />} />
-                        <Route path="register" element={<Register />} />
+                        <Route path="register" element={<Register sendToParent={handleLogInChange} />} />
                     </Route>
                     <Route path="/" element={<PrivateRoute />}>
                         <Route path="for-you" element={<ForYou />} />

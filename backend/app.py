@@ -15,9 +15,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@172.22.1
 app.config["SECRET_KEY"] = '4d53112ca3f996eaf5572fb3eb7f9eeb4771fea4f0039d5a8f8d133959b14609'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 CORS(app, resources={r"/login": {"origins": "*"},
-                     r"/register": {"origins": "*"}
-                                            
-                                            })
+                     r"/register": {"origins": "*"}})
 
 
 db = SQLAlchemy()
@@ -124,6 +122,7 @@ def login():
 
     if request.method == "POST":
         user = Users.query.filter_by(username=user_str).first()
+        print(user, file=sys.stderr)
 
         if user.password == pass_str:
             login_user(user, remember=True)

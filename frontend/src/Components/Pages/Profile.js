@@ -31,14 +31,13 @@ export default function Profile() {
                 },
             }).then((response) => {
                 if (response?.ok) {
-                    console.log("User Registered");
                     return response.json();
                 } else {
                     console.log(`HTTP Response Code: ${response?.status}`)
                     throw new Error('Server returned ' + response?.status);
                 }
-            }).then((current_user) => {
-                if (current_user.username && username === current_user.username) {
+            }).then((user) => {
+                if (user.username && username === user.username) {
                     setIsCurrUser(true);
                 }
                 fetch('/get_profile', {
@@ -48,16 +47,14 @@ export default function Profile() {
                     },
                     body: JSON.stringify({ user: username })
                 }).then((response) => {
-                    if (response.ok) {
+                    if (response?.ok) {
                         return response.json();
                     } else {
                         console.log(`HTTP Response Code: ${response?.status}`)
-                        return "error";
+                        throw new Error('Server returned ' + response?.status);
                     }
-                }).then((profile_info) => {
-                    if (profile_info != "error") {
-                        setProfile({ ...profile_info });
-                    }
+                }).then((profileInfo) => {
+                    setProfile({ ...profileInfo });
                 })
             })
         } catch (error) {
@@ -89,19 +86,57 @@ export default function Profile() {
         const name_split = nameInput.split(/[ ]+/);
 
         if (name_split) {
-            fetch('/get_user_by_name', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ currUser: username, firstName: name_split[0], lastName: (name_split[1] || "") })
-            }).then((response) => {
-                return response.json();
-            }).then((user) => {
-                setFoundUsers(user.users);
-                setNameInput("");
-                setUsernameInput("");
-            })
+            try {
+                fetch('/get_user_by_name', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ currUser: username, firstName: name_split[0], lastName: (name_split[1] || "") })
+                }).then((response) => {
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then((user) => {
+                    setFoundUsers(user.users);
+                    setNameInput("");
+                    setUsernameInput("");
+                })
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+
+    const handleUsernameSubmit = (e) => {
+        e.preventDefault();
+
+        if (usernameInput) {
+            try {
+                fetch('/get_user_by_username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ currUser: username, user: usernameInput })
+                }).then((response) => {
+                    if (response?.ok) {
+                        return response.json();
+                    } else {
+                        console.log(`HTTP Response Code: ${response?.status}`)
+                        throw new Error('Server returned ' + response?.status);
+                    }
+                }).then((user) => {
+                    setFoundUsers(user.users);
+                    setNameInput("");
+                    setUsernameInput("");
+                })
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     };
 
@@ -111,17 +146,26 @@ export default function Profile() {
         delete new_profile.following.splice(index);
         setProfile({ ...new_profile })
 
-        fetch('/unfollow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-            console.log(data.message)
-        })
+        try {
+            fetch('/unfollow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
+            }).then((response) => {
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((data) => {
+                console.log(data.message)
+            })
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     const handleFollow = (e) => {
@@ -129,45 +173,32 @@ export default function Profile() {
         new_profile.following.push(parseInt(e.target.value))
         setProfile({ ...new_profile })
 
-        fetch('/follow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-            console.log(data.message)
-        })
-    };
-
-
-    const handleUsernameSubmit = (e) => {
-        e.preventDefault();
-
-        if (usernameInput) {
-            fetch('/get_user_by_username', {
+        try {
+            fetch('/follow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ currUser: username, user: usernameInput })
+                body: JSON.stringify({ following: e.target.value, follower: profile.user_id })
             }).then((response) => {
-                return response.json();
-            }).then((user) => {
-                setFoundUsers(user.users);
-                setNameInput("");
-                setUsernameInput("");
+                if (response?.ok) {
+                    return response.json();
+                } else {
+                    console.log(`HTTP Response Code: ${response?.status}`)
+                    throw new Error('Server returned ' + response?.status);
+                }
+            }).then((data) => {
+                console.log(data.message)
             })
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
-
 
     return (
         <div className="p-16">
             <div className="p-8 bg-white shadow mt-24">
-                <div className="grid grid-cols-1 md:grid-cols-3">
+                <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="grid grid-cols-3 text-center order-last md:order-first mt-20 md:mt-0">
                         <div>
                             <p className="font-bold text-gray-700 font-merriweather text-xl">
@@ -193,15 +224,6 @@ export default function Profile() {
                                 Posts
                             </p>
                         </div>
-                    </div>
-                    <div className="relative">
-                        {/* <div className="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
-                            { <img
-                               src={userData.photo}
-                               className="rounded-full"
-                               alt="user profile"
-                           /> }
-                            </div> */}
                     </div>
                     <div className="space-x-8 flex justify-center mt-36 md:mt-0 md:justify-center">
                         {isCurrUser ? (
@@ -259,7 +281,7 @@ export default function Profile() {
                 </Modal.Header>
                 <Modal.Body>
                     {foundUsers && foundUsers.length > 0 && (
-                        <div className="grid grid-cols-1 divide-y divide-theme-navy-blue">
+                        <div className="grid grid-cols-1 gap-2 divide-y divide-theme-navy-blue">
                             {foundUsers.map((user) => (
                                 <div key={user[0]} className="flex flex-row gap-4 p-2">
                                     <div className="flex flex-row items-center font-merriweather text-theme-navy-blue"><Link to={"/profile/" + user[1]} className="flex font-semibold text-theme-dark-red">{user[1]}</Link> - {user[2][0].toUpperCase() + user[2].slice(1)} {user[3][0].toUpperCase() + user[3].slice(1)}</div>
@@ -296,7 +318,7 @@ export default function Profile() {
                             ))}
                         </div>
                     )}
-                    {foundUsers && foundUsers.length == 0 && (
+                    {foundUsers && foundUsers.length === 0 && (
                         <div className="flex flex-col gap-4">
                             <form onSubmit={handleNameSubmit} className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                                 <div className="sm:col-span-2">
