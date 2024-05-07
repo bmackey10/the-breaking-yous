@@ -434,9 +434,12 @@ def mark_as_favorite():
 
     
 
-@app.route('/get-posts')
+@app.route('/get-posts', methods=['POST'])
 def get_posts():
     try:
+        data = request.json
+        your_user_id = data.get("user_id")
+
         # Execute the query to fetch posts along with comments
         cursor.execute("""
             SELECT 
@@ -457,9 +460,13 @@ def get_posts():
                 USERS UC ON C.USER_ID = UC.USER_ID
             LEFT JOIN
                 LIKES L ON P.POST_ID = L.POST_ID
+            INNER JOIN 
+                FOLLOWERS F ON U.USER_ID = F.FOLLOWED_USER_ID
+            WHERE 
+                (F.FOLLOWER_USER_ID = :user_id OR U.USER_ID = :user_id) AND F.ACTIVE = 1
             ORDER BY 
                 P.POST_ID DESC
-        """)
+        """, {"user_id": your_user_id})
 
         # Fetch all posts along with comments
         rows = cursor.fetchall()

@@ -41,14 +41,14 @@ export default function CreatePost() {
         }).then((response) => {
             return response.json();
         }).then((current_user) => {
-            setUser({...current_user});
+            setUser({ ...current_user });
         });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const currentDate = new Date();
-        const formattedDate = currentDate.toISOString(); 
+        const formattedDate = currentDate.toISOString();
         fetch("/create-post", {
             method: "POST",
             headers: {
@@ -63,7 +63,6 @@ export default function CreatePost() {
         })
             .then((response) => {
                 if (response.ok) {
-                    console.log("Post submitted successfully");
                     // Optionally, you can redirect the user to another page after successful submission
                 } else {
                     throw new Error(`HTTP Response Code: ${response.status}`);
@@ -92,11 +91,10 @@ export default function CreatePost() {
                                 url={articleInfo.url}
                                 img={articleInfo.image_url}
                                 auth={articleInfo.author}
-                                //date={articleInfo.publish_date}
                                 title={articleInfo.title}
                                 desc={articleInfo.description}
+                                type="create post"
                             />
-                        
                         )}
                         <form onSubmit={handleSubmit} className="flex order-first sm:order-2 flex-col content-start justify-center">
                             <label
@@ -115,7 +113,7 @@ export default function CreatePost() {
                                     className="block w-full pl-3 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
                                 ></textarea>
                             </div>
-                            <div className="mt-6 flex justify-center sm:justify-left">
+                            <div className="mt-6 flex justify-left">
                                 <button
                                     type="submit"
                                     className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"

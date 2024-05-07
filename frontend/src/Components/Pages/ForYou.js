@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 
 export default function ForYou() {
     const [articles, setArticles] = useState([]);
-    const [numArticlesToShow, setNumArticlesToShow] = useState(6);
     const [user, setUser] = useState(null);
 
 
@@ -32,9 +31,6 @@ export default function ForYou() {
                     setUser({ ...current_user });
                     fetchData(current_user);
                 })
-            // .catch((error) => {
-            //     console.error('Error fetching current user:', error);
-            // });
         } catch (error) {
             console.error('Error:', error);
         }
@@ -45,7 +41,6 @@ export default function ForYou() {
     const fetchData = (current_user, loadMore = false) => {
         try {
             const url = '/for-you' + (loadMore ? '?load_more=true' : '');
-            console.log(current_user);
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -88,9 +83,6 @@ export default function ForYou() {
                         console.error('Error fetching articles:', data.error);
                     }
                 })
-            // .catch((error) => {
-            //     console.error('Error fetching data:', error);
-            // });
         } catch (error) {
             console.error('Error:', error);
         }
@@ -111,11 +103,6 @@ export default function ForYou() {
                 }),
             })
                 .then((response) => {
-                    // if (response.ok) {
-                    //     // Article marked as favorited successfully, update UI or perform any necessary action
-                    // } else {
-                    //     console.error('Failed to mark article as favorited:', response.statusText);
-                    // }
                     if (response?.ok) {
                         return response.json();
                     } else {
@@ -123,16 +110,12 @@ export default function ForYou() {
                         throw new Error('Server returned ' + response?.status);
                     }
                 })
-            // .catch((error) => {
-            //     console.error('Error marking article as favorited:', error);
-            // });
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
     const handleLoadMore = () => {
-        setNumArticlesToShow(prevNumArticles => prevNumArticles + 6);
         fetchData(user, true);
     };
 
@@ -172,7 +155,6 @@ export default function ForYou() {
                                 title={article.title}
                                 desc={article.description}
                                 favorited={article.favorited}
-                                type="for-you"
                                 key={article.article_id}
                                 onAddToFavorites={() => handleAddToFavorites(article.article_id)}
                             />
