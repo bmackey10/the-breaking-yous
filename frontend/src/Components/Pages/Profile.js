@@ -309,11 +309,11 @@ export default function Profile() {
                                 Add a Friend
                             </button>) : (isFollowing ? (<button
                                 onClick={() => handleUnfollow(profile.user_id)}
-                                className="border-2 transition ease-in-out duration-500 border-theme-navy-blue hover:bg-white bg-theme-navy-blue hover:text-theme-navy-blue text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-green-600 bg-green-200 hover:border-red-600 hover:bg-red-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                                 Unfollow
                             </button>) : (<button
                                 onClick={() => handleFollow(profile.user_id)}
-                                className="border-2 transition ease-in-out duration-500 border-theme-navy-blue bg-white hover:bg-theme-navy-blue text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
+                                className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-gray-400 hover:border-green-600 bg-white hover:bg-green-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold">
                                 Follow
                             </button>)
                         )
@@ -409,7 +409,7 @@ export default function Profile() {
                                             onClick={() => handleUnfollow(user[0])}
                                             value={user[0]}
                                             className="border-2 text-center transition ease-in-out stroke-gray-400 hover:stroke-white duration-500 border-green-600 bg-green-200 hover:border-red-600 hover:bg-red-600 text-theme-navy-blue hover:text-white font-merriweather rounded-full px-4 py-2 font-semibold"
-                                        >   Following
+                                        >   Unfollow
                                             <CheckCircleIcon
                                                 className="inline h-8 w-8 p-1"
                                                 aria-hidden="true"

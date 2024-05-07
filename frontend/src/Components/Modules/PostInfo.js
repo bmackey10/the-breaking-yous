@@ -140,14 +140,16 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
                 <div className="rounded-full bg-theme-navy-blue h-1 w-1"></div>
                 <div className="font-light">{comments.length} comments</div>
             </div>
-            <div className="relative flex items-center pb-4">
-                <input
-                    type="text"
-                    className="border rounded-lg w-full px-3 py-2 mr-2 focus:outline-none focus:ring focus:border-theme-dark-red"
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                />
+            <div className="relative flex gap-2 items-center pb-4">
+                <div className="flex flex-grow rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-theme-dark-red sm:max-w-md">
+                    <input
+                        type="text"
+                        className="block pl-3 flex-1 border-0 bg-transparent py-1.5 text-black focus:ring-0 sm:text-sm sm:leading-6"
+                        placeholder="Add a comment..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                    />
+                </div>
                 <button
                     className="bg-theme-dark-red text-white font-bold py-2 px-4 rounded-lg"
                     onClick={(e) => handleSubmitComment(e)}

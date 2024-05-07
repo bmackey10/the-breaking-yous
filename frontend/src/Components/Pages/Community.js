@@ -12,21 +12,30 @@ export default function Community() {
             headers: {
                 'Content-Type': 'application/json',
             },
-        }).then((response) => {
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP Response Code: ${response.status}`);
+            }
             return response.json();
-        }).then((current_user) => {
+        })
+        .then((current_user) => {
             setUser({ ...current_user });
+        })
+        .catch((error) => {
+            console.error('Error fetching current user:', error);
         });
     };
 
-    useEffect(() => {
-        fetchCurrentUser();
-        fetchPosts();
-    }, []);
-
-
     const fetchPosts = () => {
-        fetch('/get-posts')
+        fetch('/get-posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ curr_user: curr_user.user_id })
+        })
+        
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`HTTP Response Code: ${response.status}`);
@@ -34,8 +43,6 @@ export default function Community() {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
-                console.log(curr_user)
                 setPosts(data);
             })
             .catch((error) => {
@@ -43,6 +50,10 @@ export default function Community() {
             });
     };
 
+    useEffect(() => {
+        fetchCurrentUser();
+        fetchPosts();
+    }, []);
 
     return (
         <div>
