@@ -6,9 +6,17 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta, datetime
 import random
+import os
 
-# sys.path.append('../../sqlcommands/commands')
-# from apitoSQL import add_topic_to_database as fetcharticles
+# Get the current directory of this script
+current_dir = os.path.dirname(os.path.realpath(__file__))
+# Assuming your functions directory is named 'functions' and is at the same level as this script
+apis = os.path.join(current_dir, 'apis')
+
+# Append the directory to the Python path
+sys.path.append(apis)
+from fetcharticles import get_newsdata, get_current, get_nytimes, merge_apis, add_topic_to_database
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "oracle+cx_oracle://guest:guest@172.22.134.159:1521/XE"
@@ -79,27 +87,27 @@ def loader_user(user_id):
 @app.route('/login', methods=['POST'])
 def login():
 
-    # #GET TODAYS DATE
-    # date = datetime.now()
-    # date = str(date.strftime('%d-%b-%y')).upper()
+    #GET TODAYS DATE
+    date = datetime.now()
+    date = str(date.strftime('%d-%b-%y')).upper()
 
-    # #check to see if articles need to be fetched
-    # check_articles = f"select article_id from articles where to_date(retrieved_date, 'DD-MON-YY') = {date}"
-    # cursor.execute(check_articles)
-    # todays_articles = cursor.fetchall()
-    # if len(todays_articles) == 0:
-    #     fetcharticles("arts")
-    #     fetcharticles("business")
-    #     fetcharticles("health")
-    #     fetcharticles("technology")
-    #     fetcharticles("world")
-    #     fetcharticles("sports")
-    #     fetcharticles("food")
-    #     fetcharticles("politics")
-    #     fetcharticles("travel")
-    #     fetcharticles("tourism")
-    #     fetcharticles("us")
-    #     fetcharticles("entertainment")
+    #check to see if articles need to be fetched
+    check_articles = f"select article_id from articles where to_date(retrieved_date, 'DD-MON-YY') = '{date}'"
+    cursor.execute(check_articles)
+    todays_articles = cursor.fetchall()
+    if len(todays_articles) == 0 or todays_articles is None:
+        add_topic_to_database("arts")
+        add_topic_to_database("business")
+        add_topic_to_database("health")
+        add_topic_to_database("technology")
+        add_topic_to_database("world")
+        add_topic_to_database("sports")
+        add_topic_to_database("food")
+        add_topic_to_database("politics")
+        add_topic_to_database("travel")
+        add_topic_to_database("tourism")
+        add_topic_to_database("us")
+        add_topic_to_database("entertainment")
 
     data = request.json
     user_str = data.get('username')
@@ -440,6 +448,8 @@ def get_posts():
         data = request.json
         your_user_id = data.get("user_id")
 
+        print("Received user_id:", your_user_id)
+
         # Execute the query to fetch posts along with comments
         cursor.execute("""
             SELECT 
@@ -468,8 +478,12 @@ def get_posts():
                 P.POST_ID DESC
         """, {"user_id": your_user_id})
 
+        print("Executed SQL query")
+
         # Fetch all posts along with comments
         rows = cursor.fetchall()
+
+        print("Fetched rows:", rows)
 
         # Convert the result to a list of dictionaries
         posts_data = []
@@ -514,7 +528,9 @@ def get_posts():
                 })
         return jsonify(posts_data)
     except Exception as e:
+        print("Error occurred:", e)
         return jsonify({'error': str(e)}), 500
+
 
     
 # @app.route('/community-articles', methods=['GET'])

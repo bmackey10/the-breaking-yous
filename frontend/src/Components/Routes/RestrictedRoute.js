@@ -6,7 +6,7 @@ const RestrictedRoutes = () => {
 
     useEffect(() => {
         try {
-            fetch('/get_current_user', {
+            fetch('/api/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

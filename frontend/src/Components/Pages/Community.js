@@ -7,7 +7,7 @@ export default function Community() {
     const [curr_user, setUser] = useState({});
 
     const fetchCurrentUser = () => {
-        fetch('/get_current_user', {
+        fetch('/api/get_current_user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,21 +21,22 @@ export default function Community() {
         })
         .then((current_user) => {
             setUser({ ...current_user });
+            // Call fetchPosts inside the then block to ensure it's executed after setUser
+            fetchPosts(current_user);
         })
         .catch((error) => {
             console.error('Error fetching current user:', error);
         });
     };
-
-    const fetchPosts = () => {
-        fetch('/get-posts', {
+    
+    const fetchPosts = (current_user) => {
+        fetch('/api/get-posts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ curr_user: curr_user.user_id })
+            body: JSON.stringify({ user_id: current_user.user_id })
         })
-        
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`HTTP Response Code: ${response.status}`);
@@ -49,11 +50,11 @@ export default function Community() {
                 console.error('Error fetching posts:', error);
             });
     };
-
+    
     useEffect(() => {
         fetchCurrentUser();
-        fetchPosts();
     }, []);
+    
 
     return (
         <div>

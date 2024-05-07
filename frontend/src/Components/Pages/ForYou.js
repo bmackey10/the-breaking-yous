@@ -12,7 +12,7 @@ export default function ForYou() {
 
     const fetchCurrentUser = () => {
         try {
-            fetch('/get_current_user', {
+            fetch('/api/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export default function ForYou() {
         try {
             // Send a request to the backend to mark the article as favorited
 
-            fetch('/mark-as-favorite', {
+            fetch('/api/mark-as-favorite', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

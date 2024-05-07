@@ -28,7 +28,7 @@ export default function LogIn({ sendToParent }) {
         }
 
         try {
-            fetch('/login', {
+            fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

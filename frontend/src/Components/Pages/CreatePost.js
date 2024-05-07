@@ -14,7 +14,7 @@ export default function CreatePost() {
     }, [article_id]);
 
     const fetchArticleInfo = () => {
-        fetch('/create-post?' + new URLSearchParams({ article_id: article_id }))
+        fetch('/api/create-post?' + new URLSearchParams({ article_id: article_id }))
             .then((response) => {
                 if (!response.ok) {
                     throw new Error(`HTTP Response Code: ${response.status}`);
@@ -33,7 +33,7 @@ export default function CreatePost() {
     };
 
     const fetchCurrentUser = () => {
-        fetch('/get_current_user', {
+        fetch('/api/get_current_user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

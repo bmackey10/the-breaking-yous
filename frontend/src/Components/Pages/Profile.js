@@ -27,7 +27,7 @@ export default function Profile() {
 
     useEffect(() => {
         try {
-            fetch('/get_current_user', {
+            fetch('/api/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default function Profile() {
                 if (user.username && username === user.username) {
                     setIsCurrUser(true);
                 }
-                fetch('/get_profile', {
+                fetch('/api/get_profile', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export default function Profile() {
                     setProfile({ ...profileInfo });
                     if (user.username && profileInfo.user_id !== user.username) {
                         try {
-                            fetch('/check_follow', {
+                            fetch('/api/check_follow', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export default function Profile() {
 
         if (name_split) {
             try {
-                fetch('/get_user_by_name', {
+                fetch('/api/get_user_by_name', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export default function Profile() {
 
         if (usernameInput) {
             try {
-                fetch('/get_user_by_username', {
+                fetch('/api/get_user_by_username', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ export default function Profile() {
         }
 
         try {
-            fetch('/unfollow', {
+            fetch('/api/unfollow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ export default function Profile() {
         }
 
         try {
-            fetch('/follow', {
+            fetch('/api/follow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -240,7 +240,7 @@ export default function Profile() {
     const handleAddToFavorites = (articleId) => {
 
         try {
-            fetch('/mark-as-favorite', {
+            fetch('/api/mark-as-favorite', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

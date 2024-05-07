@@ -24,7 +24,7 @@ export default function SelectInterests() {
 
     useEffect(() => {
         try {
-            fetch('/get_current_user', {
+            fetch('/api/get_current_user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function SelectInterests() {
                 }
             }).then((user) => {
                 setCurrUser(user.user_id)
-                fetch('/get_user_interests', {
+                fetch('/api/get_user_interests', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function SelectInterests() {
             }));
 
             try {
-                fetch('/remove_interest', {
+                fetch('/api/remove_interest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export default function SelectInterests() {
             }));
 
             try {
-                fetch('/add_interest', {
+                fetch('/api/add_interest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

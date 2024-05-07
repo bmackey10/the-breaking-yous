@@ -25,7 +25,7 @@ export default function Register({ sendToParent }) {
 
     useEffect(() => {
         try {
-            fetch('/existing_users', {
+            fetch('/api/existing_users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ export default function Register({ sendToParent }) {
         }
 
         try {
-            fetch('/register', {
+            fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ export default function Register({ sendToParent }) {
                 setBirthError({ ...birthError, "error": false, "errorMessage": "" });
                 setPhoneError({ ...phoneError, "error": false, "errorMessage": "" });
                 setEmailError({ ...emailError, "error": false, "errorMessage": "" });
-                fetch('/login', {
+                fetch('/api/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
         const currentDate = new Date();
         const formattedDate = currentDate.toISOString();
 
-        fetch('/submit-comment', {
+        fetch('/api/submit-comment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
 
     const handleUnlike = () => {
         try {
-            fetch('/unlike_post', {
+            fetch('/api/unlike_post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const PostInfo = ({ user, date, content, likes, comments, postId, curr_user }) =
 
     const handleLike = () => {
         try {
-            fetch('/like_post', {
+            fetch('/api/like_post', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

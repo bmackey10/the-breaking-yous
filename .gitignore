@@ -68,6 +68,8 @@ MANIFEST
 #docker
 /frontend/frontendtest.tar
 /backend/backendtest.tar
+/frontend/frontendtest.jar
+
 
 # sqlcommands
 /backend/sqlcommands/*
